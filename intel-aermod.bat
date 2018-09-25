@@ -3,9 +3,9 @@
 
 setlocal
 
-set COMPILE_FLAGS=/O2 /check:format /Qipo /Qprec-div- /QaxSSE2 /trace 
-set LINK_FLAGS=/O2 /Qipo /check:format /Qprec-div- /QaxSSE2 
-
+set COMPILE_FLAGS=/O2 /check:format /Qprec-div- /QaxSSE2 /trace /Qdiag-disable:8291 /I"%PROGRAMFILES%\NC4F\include" 
+set LINK_FLAGS=/O2 /Qipo- /check:format /Qprec-div- /QaxSSE2
+set LINKER_FLAGS=/LIBPATH:"%PROGRAMFILES%\netCDF\lib" /LIBPATH:"%PROGRAMFILES%\HDF_Group\HDF5\1.8.20\lib" /LIBPATH:"%PROGRAMFILES%\NC4F\lib"^ /NODEFAULTLIB:LIBCMT msvcrt.lib libzlib.lib libszip.lib libhdf5.lib libhdf5_hl.lib netcdf.lib netcdff.lib
 
 ifort /compile_only %COMPILE_FLAGS% modules.f  
 ifort /compile_only %COMPILE_FLAGS% aermod.f   
@@ -33,7 +33,7 @@ ifort /compile_only %COMPILE_FLAGS% evset.f
 ifort /compile_only %COMPILE_FLAGS% evcalc.f   
 ifort /compile_only %COMPILE_FLAGS% evoutput.f 
 
-ifort /exe:aermod.exe %LINK_FLAGS% MODULES.obj AERMOD.obj SETUP.obj COSET.obj SOSET.obj RESET.obj MESET.obj OUSET.obj INPSUM.obj METEXT.obj IBLVAL.obj SIGGRID.obj TEMPGRID.obj WINDGRID.obj CALC1.obj CALC2.obj PRISE.obj PRIME.obj SIGMAS.obj PITAREA.obj UNINAM.obj OUTPUT.obj EVSET.obj EVCALC.obj EVOUTPUT.obj
+ifort /exe:aermod.exe %LINK_FLAGS% MODULES.obj AERMOD.obj SETUP.obj COSET.obj SOSET.obj RESET.obj MESET.obj OUSET.obj INPSUM.obj METEXT.obj IBLVAL.obj SIGGRID.obj TEMPGRID.obj WINDGRID.obj CALC1.obj CALC2.obj PRISE.obj PRIME.obj SIGMAS.obj PITAREA.obj UNINAM.obj OUTPUT.obj EVSET.obj EVCALC.obj EVOUTPUT.obj /link %LINKER_FLAGS%
 
 del *.obj
 del *.mod

@@ -2683,6 +2683,9 @@ C        PROGRAMMER: Roger Brode, Jeff Wang
 C
 C        DATE:    March 2, 1992
 C
+C        MODIFIED:   Added support for netCDF POSTFILEs.
+C                    J. Buonagurio, Exponent, 01/01/2018
+C
 C        MODIFIED:   Replaced 'read to end' loop with POSITION='APPEND'
 C                    in OPEN statements for Fortran 90 version with
 C                    RSTSAV (SAVEFILE option).
@@ -2698,8 +2701,12 @@ C***********************************************************************
 
 C     Variable Declarations
       USE MAIN1
+      USE NETCDF
       IMPLICIT NONE
       CHARACTER MODNAM*12
+      
+      INTEGER :: TIME_INDEX, I
+      INTEGER, DIMENSION(4) :: AVEVAL_START, AVEVAL_COUNT
 
 C     Variable Initializations
       MODNAM = 'POSTFL'
@@ -2720,7 +2727,7 @@ C                 Close POSTFILE and Reposition to End
                   OPEN(IPSUNT(IGRP,IAVE),FILE=PSTFIL(IGRP,IAVE),
      &                 FORM='UNFORMATTED',POSITION='APPEND')
                END IF
-            ELSE
+            ELSE IF (IPSFRM(IGRP,IAVE) .EQ. 1) THEN
 C              WRITE Results to Formatted Plot File
 C              Begin Receptor LOOP
                DO IREC = 1, NUMREC
@@ -2738,6 +2745,79 @@ C                 Close POSTFILE and Reposition to End
                   OPEN(IPSUNT(IGRP,IAVE),FILE=PSTFIL(IGRP,IAVE),
      &                 FORM='FORMATTED',POSITION='APPEND')
                END IF
+            ELSE IF (IPSFRM(IGRP,IAVE) .EQ. 2) THEN
+C              WRITE Results to netCDF POSTFILE
+C              Set Time Units Attribute on First Call
+               IF (L_TimeInit .EQ. .FALSE.) THEN
+                  CALL NCCHECK(NF90_REDEF(IPSUNT(IGRP,IAVE)))
+                  WRITE(TIME_UNITS_ATT,
+     &               '(a12,i4.4,"-",i2.2,"-",i2.2,x,i2.2,a6)')
+     &               'hours since ',IYR,IMONTH,IDAY,IHOUR-1,':00:00'
+                  CALL NCCHECK(NF90_PUT_ATT(IPSUNT(IGRP,IAVE),
+     &               TIME_VARID(IGRP,IAVE), "units", TIME_UNITS_ATT))
+                  CALL NCCHECK(NF90_ENDDEF(IPSUNT(IGRP,IAVE)))
+                  INIT_JDAY = JDAY
+                  INIT_IYR = IYR
+                  L_TimeInit = .TRUE.
+               END IF
+     
+C              Calculate Current Hour
+               TIME_VALUE = 24*(JDAY-INIT_JDAY) + IHOUR-1
+               IF (IYR .NE. INIT_IYR) THEN
+                  DO I = INIT_IYR, IYR
+                     IF ((MOD(I,4) .NE. 0) .OR.
+     &                   (MOD(I,100) .EQ. 0 .AND. 
+     &                    MOD(I,400) .NE. 0)) THEN
+C                       Non-Leap Year
+                        TIME_VALUE = TIME_VALUE + 24*365*(I-INIT_IYR)
+                     ELSE
+C                       Leap Year
+                        TIME_VALUE = TIME_VALUE + 24*366*(I-INIT_IYR)
+                     END IF
+                  END DO
+               END IF
+               
+C              Get Current Time Index
+               CALL NCCHECK(NF90_INQUIRE_DIMENSION(IPSUNT(IGRP,IAVE),
+     &            TIME_DIMID(IGRP,IAVE), LEN=TIME_INDEX))
+               
+C              If Time Changed, Increment Index and Write Current Hour
+               IF (TIME_VALUE .GT. PREV_TIME_VALUE) THEN
+                  TIME_INDEX = TIME_INDEX + 1
+                  CALL NCCHECK(NF90_PUT_VAR(IPSUNT(IGRP,IAVE),
+     &               TIME_VARID(IGRP,IAVE), TIME_VALUE,
+     &               START=(/ TIME_INDEX /)))
+               END IF
+     
+C              Write AVEVAL Arrays
+C              NetCDF Array Indexes: [TIME, IREC, IGRP, IAVE]
+C              AVEVAL Indexes: [IREC, IGRP, IAVE, ITYP]
+               DO ITYP = 1, NUMTYP
+                  AVEVAL_START = [TIME_INDEX, 1, IGRP, IAVE]
+                  AVEVAL_COUNT = [1, NUMREC, 1, 1]
+                  CALL NCCHECK(NF90_PUT_VAR(IPSUNT(IGRP,IAVE),
+     &               DATA_VARID(IGRP,IAVE,ITYP),
+     &               AVEVAL(1:NUMREC,IGRP,IAVE,ITYP),
+     &               START=AVEVAL_START, COUNT=AVEVAL_COUNT))
+               END DO
+               
+C              Write Calm and Missing Flags
+               IF (CLMHR) THEN
+                  CALL NCCHECK(NF90_PUT_VAR(IPSUNT(IGRP,IAVE),
+     &               CLMSG_VARID(IGRP,IAVE), 1,
+     &               START=(/ TIME_INDEX /)))
+               ELSE IF (MSGHR) THEN
+                  CALL NCCHECK(NF90_PUT_VAR(IPSUNT(IGRP,IAVE),
+     &               CLMSG_VARID(IGRP,IAVE), 2,
+     &               START=(/ TIME_INDEX /)))
+               ELSE
+                  CALL NCCHECK(NF90_PUT_VAR(IPSUNT(IGRP,IAVE),
+     &               CLMSG_VARID(IGRP,IAVE), 0,
+     &               START=(/ TIME_INDEX /)))
+               END IF
+               
+C              Set Previous Hour to Current
+               PREV_TIME_VALUE = TIME_VALUE
             END IF
          END IF
       END DO

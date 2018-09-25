@@ -1203,6 +1203,9 @@ C        PROGRAMMER: Roger Brode, Jeff Wang
 C
 C        DATE:    March 2, 1992
 C
+C        MODIFIED:  Added support for netCDF POSTFILEs.
+C                   J. Buonagurio, Exponent, 01/01/2018
+C
 C        MODIFIED:  Modified to correct problems with POSTFILE outputs 
 C                   for re-started model runs using the SAVEFILE/INITFILE 
 C                   option.  Previous versions used the 8-digit date 
@@ -1238,6 +1241,7 @@ C***********************************************************************
 
 C     Variable Declarations
       USE MAIN1
+      USE NETCDF
       IMPLICIT NONE
       CHARACTER MODNAM*12
 
@@ -1346,6 +1350,8 @@ C     Retrieve Format Secondary Keyword
          IPSFRM(INDGRP,INDAVE) = 0
       ELSE IF (FIELD(5) .EQ. 'PLOT') THEN
          IPSFRM(INDGRP,INDAVE) = 1
+      ELSE IF (FIELD(5) .EQ. 'NETCDF') THEN
+         IPSFRM(INDGRP,INDAVE) = 2
       ELSE
 C        Error Message: Invalid Format Specified for POSTFILE
          CALL ERRHDL(PATH,MODNAM,'E','203','FORMAT')
@@ -1403,12 +1409,18 @@ C           WRITE Warning Message: Dynamic FUnit Allocation May Have Conflict
       END IF
 
 C     Check for Earlier Use of This Filename and File Unit
+C     Allow Earlier Use of This Filename for NETCDF
       FOUND = .FALSE.
       DO J = 1, NUMAVE
          DO I = 1, NUMGRP
             IF (I .NE. INDGRP .OR. J .NE. INDAVE) THEN
                IF (PSTFIL(INDGRP,INDAVE) .EQ. PSTFIL(I,J) .AND.
      &             IPSUNT(INDGRP,INDAVE) .EQ. IPSUNT(I,J)) THEN
+                  FOUND = .TRUE.
+               ELSE IF (PSTFIL(INDGRP,INDAVE) .EQ. PSTFIL(I,J) .AND.
+     &             IPSFRM(INDGRP,INDAVE) .EQ. IPSFRM(I,J) .AND.
+     &             IPSFRM(INDGRP,INDAVE) .EQ. 2) THEN
+C                 Conflicting IPSUNT Allowed for NETCDF
                   FOUND = .TRUE.
                ELSE IF (PSTFIL(INDGRP,INDAVE) .EQ. PSTFIL(I,J) .AND.
      &                  IPSUNT(INDGRP,INDAVE) .NE. IPSUNT(I,J)) THEN
@@ -1582,7 +1594,281 @@ C ---          This is not a restarted run; just open the file
      &              FILE=PSTFIL(INDGRP,INDAVE),
      &              IOSTAT=IOERRN,FORM='FORMATTED',STATUS='REPLACE')
             END IF
+         ELSE IF (FIELD(5) .EQ. 'NETCDF') THEN
+C           First Time File is Identified; check for re-start option (RSTINP)
+C           before OPENing File
+            IF (RSTINP) THEN
+C ---          This is a restarted run; open file for writing
+               CALL NCCHECK(NF90_OPEN(PSTFIL(INDGRP,INDAVE),NF90_WRITE,
+     &                                IPSUNT(INDGRP,INDAVE)))
+               
+C              Get dimension IDs
+               CALL NCCHECK(NF90_INQ_DIMID(IPSUNT(INDGRP,INDAVE),
+     &            "rec", REC_DIMID(INDGRP,INDAVE)))
+               CALL NCCHECK(NF90_INQ_DIMID(IPSUNT(INDGRP,INDAVE),
+     &            "grp", GRP_DIMID(INDGRP,INDAVE)))
+               CALL NCCHECK(NF90_INQ_DIMID(IPSUNT(INDGRP,INDAVE),
+     &            "ave", AVE_DIMID(INDGRP,INDAVE)))
+               CALL NCCHECK(NF90_INQ_DIMID(IPSUNT(INDGRP,INDAVE),
+     &            "time", TIME_DIMID(INDGRP,INDAVE)))
+     
+C              Get variable IDs
+               CALL NCCHECK(NF90_INQ_VARID(IPSUNT(INDGRP,INDAVE),
+     &            "x", X_VARID(INDGRP,INDAVE)))
+               CALL NCCHECK(NF90_INQ_VARID(IPSUNT(INDGRP,INDAVE),
+     &            "y", Y_VARID(INDGRP,INDAVE)))
+               CALL NCCHECK(NF90_INQ_VARID(IPSUNT(INDGRP,INDAVE),
+     &            "zelev", ZELEV_VARID(INDGRP,INDAVE)))
+               CALL NCCHECK(NF90_INQ_VARID(IPSUNT(INDGRP,INDAVE),
+     &            "zhill", ZHILL_VARID(INDGRP,INDAVE)))
+               CALL NCCHECK(NF90_INQ_VARID(IPSUNT(INDGRP,INDAVE),
+     &            "zflag", ZFLAG_VARID(INDGRP,INDAVE)))
+               CALL NCCHECK(NF90_INQ_VARID(IPSUNT(INDGRP,INDAVE),
+     &            "rec", REC_VARID(INDGRP,INDAVE)))
+               CALL NCCHECK(NF90_INQ_VARID(IPSUNT(INDGRP,INDAVE),
+     &            "grp", GRP_VARID(INDGRP,INDAVE)))
+               CALL NCCHECK(NF90_INQ_VARID(IPSUNT(INDGRP,INDAVE),
+     &            "ave", AVE_VARID(INDGRP,INDAVE)))
+               CALL NCCHECK(NF90_INQ_VARID(IPSUNT(INDGRP,INDAVE),
+     &            "time", TIME_VARID(INDGRP,INDAVE)))
+               CALL NCCHECK(NF90_INQ_VARID(IPSUNT(INDGRP,INDAVE),
+     &            "clmsg", CLMSG_VARID(INDGRP,INDAVE)))
+               DO I = 1, NUMTYP
+                  IF (OUTTYP(I) .EQ. 'CONC') THEN
+                     CALL NCCHECK(NF90_INQ_VARID(IPSUNT(INDGRP,INDAVE),
+     &                  "conc", DATA_VARID(INDGRP,INDAVE,I)))
+                  ELSE IF (OUTTYP(I) .EQ. 'DEPOS') THEN
+                     CALL NCCHECK(NF90_INQ_VARID(IPSUNT(INDGRP,INDAVE),
+     &                  "depos", DATA_VARID(INDGRP,INDAVE,I)))
+                  ELSE IF (OUTTYP(I) .EQ. 'DDEP') THEN
+                     CALL NCCHECK(NF90_INQ_VARID(IPSUNT(INDGRP,INDAVE),
+     &                  "ddep", DATA_VARID(INDGRP,INDAVE,I)))
+                  ELSE IF (OUTTYP(I) .EQ. 'WDEP') THEN
+                     CALL NCCHECK(NF90_INQ_VARID(IPSUNT(INDGRP,INDAVE),
+     &                  "wdep", DATA_VARID(INDGRP,INDAVE,I)))
+                  END IF
+               END DO
+            ELSE
+C ---          This is not a restarted run; create file
+               CALL NCCHECK(NF90_CREATE(PSTFIL(INDGRP,INDAVE),
+     &                                  NF90_NETCDF4,
+     &                                  IPSUNT(INDGRP,INDAVE)))
+               
+C              Define dimensions
+               CALL NCCHECK(NF90_DEF_DIM(IPSUNT(INDGRP,INDAVE),
+     &            "rec", NUMREC, REC_DIMID(INDGRP,INDAVE)))
+               CALL NCCHECK(NF90_DEF_DIM(IPSUNT(INDGRP,INDAVE),
+     &            "grp", NUMGRP, GRP_DIMID(INDGRP,INDAVE)))
+               CALL NCCHECK(NF90_DEF_DIM(IPSUNT(INDGRP,INDAVE),
+     &            "ave", NUMAVE, AVE_DIMID(INDGRP,INDAVE)))
+               CALL NCCHECK(NF90_DEF_DIM(IPSUNT(INDGRP,INDAVE),
+     &            "time", NF90_UNLIMITED, TIME_DIMID(INDGRP,INDAVE)))
+               CALL NCCHECK(NF90_DEF_DIM(IPSUNT(INDGRP,INDAVE),
+     &            "strlen", 8, STRLEN_DIMID(INDGRP,INDAVE)))
+     
+C              Define variables
+               CALL NCCHECK(NF90_DEF_VAR(IPSUNT(INDGRP,INDAVE),
+     &            "x", NF90_DOUBLE, REC_DIMID(INDGRP,INDAVE),
+     &            X_VARID(INDGRP,INDAVE)))
+               CALL NCCHECK(NF90_DEF_VAR(IPSUNT(INDGRP,INDAVE),
+     &            "y", NF90_DOUBLE, REC_DIMID(INDGRP,INDAVE),
+     &            Y_VARID(INDGRP,INDAVE)))
+               CALL NCCHECK(NF90_DEF_VAR(IPSUNT(INDGRP,INDAVE),
+     &            "zelev", NF90_DOUBLE, REC_DIMID(INDGRP,INDAVE),
+     &            ZELEV_VARID(INDGRP,INDAVE)))
+               CALL NCCHECK(NF90_DEF_VAR(IPSUNT(INDGRP,INDAVE),
+     &            "zhill", NF90_DOUBLE, REC_DIMID(INDGRP,INDAVE),
+     &            ZHILL_VARID(INDGRP,INDAVE)))
+               CALL NCCHECK(NF90_DEF_VAR(IPSUNT(INDGRP,INDAVE),
+     &            "zflag", NF90_DOUBLE, REC_DIMID(INDGRP,INDAVE),
+     &            ZFLAG_VARID(INDGRP,INDAVE)))
+               CALL NCCHECK(NF90_DEF_VAR(IPSUNT(INDGRP,INDAVE),
+     &            "rec", NF90_INT, REC_DIMID(INDGRP,INDAVE),
+     &            REC_VARID(INDGRP,INDAVE)))
+               CALL NCCHECK(NF90_DEF_VAR(IPSUNT(INDGRP,INDAVE),
+     &            "grp", NF90_CHAR, 
+     &            [ STRLEN_DIMID(INDGRP,INDAVE),
+     &              GRP_DIMID(INDGRP,INDAVE) ],
+     &            GRP_VARID(INDGRP,INDAVE)))
+               CALL NCCHECK(NF90_DEF_VAR(IPSUNT(INDGRP,INDAVE),
+     &            "ave", NF90_INT, AVE_DIMID(INDGRP,INDAVE),
+     &            AVE_VARID(INDGRP,INDAVE)))
+               CALL NCCHECK(NF90_DEF_VAR(IPSUNT(INDGRP,INDAVE),
+     &            "time", NF90_INT, TIME_DIMID(INDGRP,INDAVE),
+     &            TIME_VARID(INDGRP,INDAVE)))
+               CALL NCCHECK(NF90_DEF_VAR(IPSUNT(INDGRP,INDAVE),
+     &            "clmsg", NF90_BYTE, TIME_DIMID(INDGRP,INDAVE),
+     &            CLMSG_VARID(INDGRP,INDAVE)))
+               DO I = 1, NUMTYP
+                  IF (OUTTYP(I) .EQ. 'CONC') THEN
+                     DATA_LABEL = 'conc'
+                  ELSE IF (OUTTYP(I) .EQ. 'DEPOS') THEN
+                     DATA_LABEL = 'depos'
+                  ELSE IF (OUTTYP(I) .EQ. 'DDEP') THEN
+                     DATA_LABEL = 'ddep'
+                  ELSE IF (OUTTYP(I) .EQ. 'WDEP') THEN
+                     DATA_LABEL = 'wdep'
+                  ELSE
+                     CYCLE
+                  END IF
+                  CALL NCCHECK(NF90_DEF_VAR(IPSUNT(INDGRP,INDAVE),
+     &               TRIM(DATA_LABEL), NF90_DOUBLE,
+     &               [ TIME_DIMID(INDGRP,INDAVE),
+     &                 REC_DIMID(INDGRP,INDAVE),
+     &                 GRP_DIMID(INDGRP,INDAVE),
+     &                 AVE_DIMID(INDGRP,INDAVE) ],
+     &               DATA_VARID(INDGRP,INDAVE,I),
+     &               DEFLATE_LEVEL=DEFLATE_LEVEL))      
+               END DO
+     
+C              Define attributes
+               CALL NCCHECK(NF90_PUT_ATT(IPSUNT(INDGRP,INDAVE),
+     &            X_VARID(INDGRP,INDAVE), "units", "m"))
+               CALL NCCHECK(NF90_PUT_ATT(IPSUNT(INDGRP,INDAVE),
+     &            Y_VARID(INDGRP,INDAVE), "units", "m"))
+               IF (SOELEV .EQ. 'METERS') THEN
+                  CALL NCCHECK(NF90_PUT_ATT(IPSUNT(INDGRP,INDAVE),
+     &               ZELEV_VARID(INDGRP,INDAVE), "units", "m"))
+                  CALL NCCHECK(NF90_PUT_ATT(IPSUNT(INDGRP,INDAVE),
+     &               ZHILL_VARID(INDGRP,INDAVE), "units", "m"))
+               ELSE IF (SOELEV .EQ. 'FEET') THEN
+                  CALL NCCHECK(NF90_PUT_ATT(IPSUNT(INDGRP,INDAVE),
+     &               ZELEV_VARID(INDGRP,INDAVE), "units", "ft"))
+                  CALL NCCHECK(NF90_PUT_ATT(IPSUNT(INDGRP,INDAVE),
+     &               ZHILL_VARID(INDGRP,INDAVE), "units", "ft"))
+               END IF
+               CALL NCCHECK(NF90_PUT_ATT(IPSUNT(INDGRP,INDAVE),
+     &            ZFLAG_VARID(INDGRP,INDAVE), "units", "m"))
+               CALL NCCHECK(NF90_PUT_ATT(IPSUNT(INDGRP,INDAVE),
+     &            TIME_VARID(INDGRP,INDAVE), "axis", "T"))
+               CALL NCCHECK(NF90_PUT_ATT(IPSUNT(INDGRP,INDAVE),
+     &            TIME_VARID(INDGRP,INDAVE), "units", TIME_UNITS_ATT))
+               CALL NCCHECK(NF90_PUT_ATT(IPSUNT(INDGRP,INDAVE),
+     &            X_VARID(INDGRP,INDAVE), "axis", "X"))
+               CALL NCCHECK(NF90_PUT_ATT(IPSUNT(INDGRP,INDAVE),
+     &            Y_VARID(INDGRP,INDAVE), "axis", "Y"))
+               CALL NCCHECK(NF90_PUT_ATT(IPSUNT(INDGRP,INDAVE),
+     &            ZELEV_VARID(INDGRP,INDAVE), "axis", "Z"))
+               CALL NCCHECK(NF90_PUT_ATT(IPSUNT(INDGRP,INDAVE),
+     &            REC_VARID(INDGRP,INDAVE), "standard_name",
+     &            "receptor"))
+               CALL NCCHECK(NF90_PUT_ATT(IPSUNT(INDGRP,INDAVE),
+     &            REC_VARID(INDGRP,INDAVE), "cf_role", "timeseries_id"))
+               CALL NCCHECK(NF90_PUT_ATT(IPSUNT(INDGRP,INDAVE),
+     &            GRP_VARID(INDGRP,INDAVE), "standard_name",
+     &            "source_group"))
+               CALL NCCHECK(NF90_PUT_ATT(IPSUNT(INDGRP,INDAVE),
+     &            AVE_VARID(INDGRP,INDAVE), "standard_name",
+     &            "averaging_period"))
+               CALL NCCHECK(NF90_PUT_ATT(IPSUNT(INDGRP,INDAVE),
+     &            AVE_VARID(INDGRP,INDAVE), "units", "hr"))
+               CALL NCCHECK(NF90_PUT_ATT(IPSUNT(INDGRP,INDAVE),
+     &            CLMSG_VARID(INDGRP,INDAVE), "standard_name",
+     &            "calm_or_missing_hour status_flag"))
+               CALL NCCHECK(NF90_PUT_ATT(IPSUNT(INDGRP,INDAVE),
+     &            CLMSG_VARID(INDGRP,INDAVE), "flag_values",
+     &            CLMSG_FLAGS))
+               CALL NCCHECK(NF90_PUT_ATT(IPSUNT(INDGRP,INDAVE),
+     &            CLMSG_VARID(INDGRP,INDAVE), "flag_meanings",
+     &            "calm_hour missing_hour"))
+               DO I = 1, NUMTYP
+                  IF (OUTTYP(I) .EQ. 'CONC') THEN
+                     CALL NCCHECK(NF90_PUT_ATT(IPSUNT(INDGRP,INDAVE),
+     &                  DATA_VARID(INDGRP,INDAVE,I), "standard_name",
+     &                  "concentration"))
+                  ELSE IF (OUTTYP(I) .EQ. 'DEPOS') THEN
+                     CALL NCCHECK(NF90_PUT_ATT(IPSUNT(INDGRP,INDAVE),
+     &                  DATA_VARID(INDGRP,INDAVE,I), "standard_name",
+     &                  "total_deposition_flux"))
+                  ELSE IF (OUTTYP(I) .EQ. 'DDEP') THEN
+                     CALL NCCHECK(NF90_PUT_ATT(IPSUNT(INDGRP,INDAVE),
+     &                  DATA_VARID(INDGRP,INDAVE,I), "standard_name",
+     &                  "dry_deposition_flux"))
+                  ELSE IF (OUTTYP(I) .EQ. 'WDEP') THEN
+                     CALL NCCHECK(NF90_PUT_ATT(IPSUNT(INDGRP,INDAVE),
+     &                  DATA_VARID(INDGRP,INDAVE,I), "standard_name",
+     &                  "wet_deposition_flux"))
+                  ELSE
+                     CYCLE
+                  END IF
+C                 Set units (CONCUNIT, DEPOUNIT)
+                  CALL NCCHECK(NF90_PUT_ATT(IPSUNT(INDGRP,INDAVE),
+     &               DATA_VARID(INDGRP,INDAVE,I), "units", OUTLBL(I)))
+C                 Set cell_methods (AVEPER)
+                  CALL NCCHECK(NF90_PUT_ATT(IPSUNT(INDGRP,INDAVE),
+     &               DATA_VARID(INDGRP,INDAVE,I), "cell_methods",
+     &               "time: mean"))
+               END DO
+     
+C              Define global attributes
+               TITLE_ATT = TRIM(TITLE1) // NEW_LINE('A') // TRIM(TITLE2)
+               VERSN_ATT = 'AERMOD (' // TRIM(ADJUSTL(VERSN)) // ')'
+               
+               CALL NCCHECK(NF90_PUT_ATT(IPSUNT(INDGRP,INDAVE),
+     &           NF90_GLOBAL, "title", TITLE_ATT))
+               CALL NCCHECK(NF90_PUT_ATT(IPSUNT(INDGRP,INDAVE),
+     &           NF90_GLOBAL, "source", VERSN_ATT))
+               CALL NCCHECK(NF90_PUT_ATT(IPSUNT(INDGRP,INDAVE),
+     &           NF90_GLOBAL, "options", TRIM(ADJUSTL(MODOPS_String))))
+               CALL NCCHECK(NF90_PUT_ATT(IPSUNT(INDGRP,INDAVE),
+     &           NF90_GLOBAL, "featureType", "timeSeries"))
+               CALL NCCHECK(NF90_PUT_ATT(IPSUNT(INDGRP,INDAVE),
+     &           NF90_GLOBAL, "Conventions", "CF-1.6"))
+     
+C              End definition mode
+               CALL NCCHECK(NF90_ENDDEF(IPSUNT(INDGRP,INDAVE)))
+               
+C              Write coordinate arrays               
+               CALL NCCHECK(NF90_PUT_VAR(IPSUNT(INDGRP,INDAVE),
+     &           X_VARID(INDGRP,INDAVE), AXR))
+               CALL NCCHECK(NF90_PUT_VAR(IPSUNT(INDGRP,INDAVE),
+     &           Y_VARID(INDGRP,INDAVE), AYR))
+               CALL NCCHECK(NF90_PUT_VAR(IPSUNT(INDGRP,INDAVE),
+     &           ZELEV_VARID(INDGRP,INDAVE), AZELEV))
+               CALL NCCHECK(NF90_PUT_VAR(IPSUNT(INDGRP,INDAVE),
+     &           ZHILL_VARID(INDGRP,INDAVE), AZHILL))
+               CALL NCCHECK(NF90_PUT_VAR(IPSUNT(INDGRP,INDAVE),
+     &           ZFLAG_VARID(INDGRP,INDAVE), AZFLAG))
+               CALL NCCHECK(NF90_PUT_VAR(IPSUNT(INDGRP,INDAVE),
+     &           REC_VARID(INDGRP,INDAVE), (/ (IREC, IREC=1,NUMREC) /)))
+               CALL NCCHECK(NF90_PUT_VAR(IPSUNT(INDGRP,INDAVE),
+     &           GRP_VARID(INDGRP,INDAVE), GRPID(1:NUMGRP)))
+               CALL NCCHECK(NF90_PUT_VAR(IPSUNT(INDGRP,INDAVE),
+     &           AVE_VARID(INDGRP,INDAVE), KAVE(1:NUMAVE)))
+            END IF
          END IF
+      ELSE IF (FOUND .AND. FIELD(5) .EQ. 'NETCDF') THEN
+C        Set netCDF IPSUNT, VARIDs and DIMIDs to previously found values
+         DO J = 1, NUMAVE
+            DO I = 1, NUMGRP
+               IF (PSTFIL(INDGRP,INDAVE) .EQ. PSTFIL(I,J) .AND.
+     &             IPSFRM(INDGRP,INDAVE) .EQ. IPSFRM(I,J) .AND.
+     &             IPSFRM(INDGRP,INDAVE) .EQ. 2) THEN
+C                 NCID
+                  IPSUNT(INDGRP,INDAVE) = IPSUNT(I,J)
+C                 Dimension IDs
+                  REC_DIMID(INDGRP,INDAVE) = REC_DIMID(I,J)
+                  GRP_DIMID(INDGRP,INDAVE) = GRP_DIMID(I,J)
+                  AVE_DIMID(INDGRP,INDAVE) = AVE_DIMID(I,J)
+                  TIME_DIMID(INDGRP,INDAVE) = TIME_DIMID(I,J)
+                  STRLEN_DIMID(INDGRP,INDAVE) = STRLEN_DIMID(I,J)
+C                 Variable IDs
+                  X_VARID(INDGRP,INDAVE) = X_VARID(I,J)
+                  Y_VARID(INDGRP,INDAVE) = Y_VARID(I,J)
+                  ZELEV_VARID(INDGRP,INDAVE) = ZELEV_VARID(I,J)
+                  ZHILL_VARID(INDGRP,INDAVE) = ZHILL_VARID(I,J)
+                  ZFLAG_VARID(INDGRP,INDAVE) = ZFLAG_VARID(I,J)
+                  REC_VARID(INDGRP,INDAVE) = REC_VARID(I,J)
+                  GRP_VARID(INDGRP,INDAVE) = GRP_VARID(I,J)
+                  AVE_VARID(INDGRP,INDAVE) = AVE_VARID(I,J)
+                  TIME_VARID(INDGRP,INDAVE) = TIME_VARID(I,J)
+                  CLMSG_VARID(INDGRP,INDAVE) = CLMSG_VARID(I,J)
+                  DATA_VARID(INDGRP,INDAVE,:) = DATA_VARID(I,J,:)
+               END IF
+            END DO
+         END DO
+C        Skip Header Records
+         GO TO 999
       ELSE IF (FOUND .AND. RSTINP) THEN
 C        This file is already open, and this run is a
 C        Re-start from an earlier run
