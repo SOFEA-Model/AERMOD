@@ -143,6 +143,7 @@ set(AERMOD_INCLUDE_DIRS ${AERMOD_INCLUDE_DIRS} ${PROJECT_BINARY_DIR})
 
 add_executable(aermod
                modules.f
+               ncpost.f
                aermod.f
                setup.f
                coset.f

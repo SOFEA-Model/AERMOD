@@ -3350,33 +3350,6 @@ C     Write Out The Error Message
 
  999  RETURN
       END
-      
-      SUBROUTINE NCCHECK(STATUS)
-C***********************************************************************
-C                 NCCHECK Module of the AMS/EPA Regulatory Model - AERMOD
-C
-C        PURPOSE: Error Handling Procedure for NetCDF
-C
-C        PROGRAMMER: John Buonagurio, Exponent
-C
-C        DATE:    March 8, 2018
-C         
-C        INPUTS:  Error Code
-C
-C        OUTPUTS: Error Message
-C
-C        CALLED FROM:  (This Is An Utility Programm)
-C***********************************************************************
-      USE NETCDF
-      IMPLICIT NONE
-      
-      INTEGER, INTENT (IN) :: STATUS
-      
-      IF(STATUS /= NF90_NOERR) THEN
-         PRINT *, TRIM(NF90_STRERROR(STATUS))
-         STOP
-      END IF
-      END SUBROUTINE NCCHECK
 
       SUBROUTINE TERRST
 C***********************************************************************
@@ -3902,7 +3875,7 @@ C
 C        DATE:    September 21, 1996
 C
 C        MODIFIED:  Added support for netCDF POSTFILEs.
-C                   John Buonagurio, Exponent, 07/06/18
+C                   John Buonagurio, Exponent, 09/29/18
 C
 C        MODIFIED:  To include CHIBL, PARTCH, buoyant line parameters,
 C                   and source and receptor coordinates in a rotated 
@@ -3924,6 +3897,7 @@ C***********************************************************************
 C
 C     Variable Declarations
       USE MAIN1
+      USE NCPOST
       USE BUOYANT_LINE
       
       IMPLICIT NONE
@@ -4146,22 +4120,7 @@ C --- Allocate arrays for AREA sources based on NVMAX+1 to address issues with A
      &                   'Output Option Arrays!'
       END IF
       
-      ALLOCATE  (REC_DIMID(NGRP,NAVE), GRP_DIMID(NGRP,NAVE),
-     &           AVE_DIMID(NGRP,NAVE), TIME_DIMID(NGRP,NAVE),
-     &           STRLEN_DIMID(NGRP,NAVE),
-     &           X_VARID(NGRP,NAVE), Y_VARID(NGRP,NAVE), 
-     &           ZELEV_VARID(NGRP,NAVE), ZHILL_VARID(NGRP,NAVE), 
-     &           ZFLAG_VARID(NGRP,NAVE), REC_VARID(NGRP,NAVE),
-     &           GRP_VARID(NGRP,NAVE), AVE_VARID(NGRP,NAVE),
-     &           TIME_VARID(NGRP,NAVE), CLMSG_VARID(NGRP,NAVE),
-     &           DATA_VARID(NGRP,NAVE,NTYP),
-     &           STAT=IASTAT)
-      IF (IASTAT .NE. 0) THEN
-         CALL ERRHDL(PATH,MODNAM,'E','409','Setup Arrays')
-         ALLOC_ERR = .TRUE.
-         WRITE(IOUNIT,*) '  Error Occurred During Allocation of ',
-     &                   'netCDF Arrays!'
-      END IF
+      CALL NCALLOC
                  
       IF (NBLINES .GT. 0) THEN
          ALLOCATE (CHIBL(NREC), PARTCH(NREC), STAT=IASTAT)

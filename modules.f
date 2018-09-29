@@ -1046,47 +1046,7 @@ C --- Variable for specifying format for file outputs (default = 'FIX')
 
       DOUBLE PRECISION, ALLOCATABLE :: TXCONC(:,:)
 
-C --- netCDF Constants
-      INTEGER, PARAMETER :: DEFLATE_LEVEL = 1
 
-C --- netCDF Dimension IDs (NGRP,NAVE)
-      INTEGER, ALLOCATABLE :: REC_DIMID(:,:)
-      INTEGER, ALLOCATABLE :: GRP_DIMID(:,:)
-      INTEGER, ALLOCATABLE :: AVE_DIMID(:,:)
-      INTEGER, ALLOCATABLE :: TIME_DIMID(:,:)
-      INTEGER, ALLOCATABLE :: STRLEN_DIMID(:,:)
-
-C --- netCDF Variable IDs (NGRP,NAVE)
-      INTEGER, ALLOCATABLE :: X_VARID(:,:)
-      INTEGER, ALLOCATABLE :: Y_VARID(:,:)
-      INTEGER, ALLOCATABLE :: ZELEV_VARID(:,:)
-      INTEGER, ALLOCATABLE :: ZHILL_VARID(:,:)
-      INTEGER, ALLOCATABLE :: ZFLAG_VARID(:,:)
-      INTEGER, ALLOCATABLE :: REC_VARID(:,:)
-      INTEGER, ALLOCATABLE :: GRP_VARID(:,:)
-      INTEGER, ALLOCATABLE :: AVE_VARID(:,:)
-      INTEGER, ALLOCATABLE :: TIME_VARID(:,:)
-      INTEGER, ALLOCATABLE :: CLMSG_VARID(:,:)
-      
-C --- netCDF Data Variable ID (NGRP,NAVE,NTYP)      
-      INTEGER, ALLOCATABLE :: DATA_VARID(:,:,:)
-      
-C --- netCDF Data Variable Label
-      CHARACTER(LEN=5) :: DATA_LABEL
-      
-C --- Variables for Time Calculation
-      LOGICAL :: L_TimeInit = .FALSE.
-      INTEGER :: TIME_VALUE = 0
-      INTEGER :: PREV_TIME_VALUE = -1
-      INTEGER :: INIT_JDAY, INIT_IYR
-      
-C --- netCDF Attributes
-      INTEGER(KIND=1), PARAMETER, DIMENSION(2) ::
-     &   CLMSG_FLAGS = (/ 1, 2 /)
-      CHARACTER(LEN=31) :: TIME_UNITS_ATT
-      INTEGER, PARAMETER :: TITLE_LEN = ILEN_FLD * 2 + 1
-      CHARACTER(LEN=TITLE_LEN) :: TITLE_ATT
-      CHARACTER(LEN=15) :: VERSN_ATT
 
 C***********************************************************************
 C     This is The Global Variable Definition Block for Working Space
