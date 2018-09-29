@@ -3,7 +3,7 @@
 
 setlocal
 
-set COMPILE_FLAGS=/O2 /check:format /Qprec-div- /QaxSSE2 /trace /Qdiag-disable:8291 /I"D:\Lib\netcdf-fortran-4.4.4-x64\include"
+set COMPILE_FLAGS=/O2 /DENABLE_NETCDF /check:format /Qprec-div- /QaxSSE2 /trace /Qdiag-disable:8291 /I"D:\Lib\netcdf-fortran-4.4.4-x64\include"
 set LINK_FLAGS=/O2 /Qipo- /check:format /Qprec-div- /QaxSSE2
 set LINKER_FLAGS=^
  /LIBPATH:"D:\Lib\hdf5-1.8.21-vc141-mt-x64\lib"^
@@ -15,7 +15,7 @@ set LINKER_FLAGS=^
  libzlib.lib libszip.lib libhdf5.lib libhdf5_hl.lib libcurl_a.lib netcdf.lib netcdff.lib
 
 ifort /compile_only %COMPILE_FLAGS% modules.f
-ifort /compile_only %COMPILE_FLAGS% ncpost.f
+ifort /fpp /compile_only %COMPILE_FLAGS% ncpost.f
 ifort /compile_only %COMPILE_FLAGS% aermod.f
 ifort /compile_only %COMPILE_FLAGS% setup.f
 ifort /compile_only %COMPILE_FLAGS% coset.f

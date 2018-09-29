@@ -19,31 +19,12 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 # Define AERMOD specific options.
-option(AERMOD_NETCDF_SUPPORT "Build AERMOD with netCDF POSTFILE support." ON)
-option(AERMOD_SHARED_HDF5 "Use shared HDF5 library." OFF)
-set(AERMOD_EXTRA_LIBS "" CACHE STRING "Additional libraries passed to linker.")
-
-# Check any extra dependencies specified.
-set(EXTRA_LIBS "")
-if(AERMOD_EXTRA_LIBS)
-  string(REPLACE " " ";" LIBS_LIST ${AERMOD_EXTRA_LIBS})
-  foreach(_L IN ITEMS ${LIBS_LIST})
-    find_library("${_L}_LIB" NAMES "${_L}" "lib${_L}")
-    message(${${_L}_LIB})
-    if("${${_L}_LIB}" STREQUAL "${_L}_LIB-NOTFOUND")
-      message(FATAL_ERROR "Could not find ${_L}")
-    else()
-      message(STATUS "Found ${_L}: ${${_L}_LIB}")
-    endif()
-    set(EXTRA_LIBS ${EXTRA_LIBS} "${${_L}_LIB}")
-  endforeach()
-  list(REMOVE_DUPLICATES EXTRA_LIBS)
-  set(AERMOD_LINK_LIBS ${AERMOD_LINK_LIBS} ${EXTRA_LIBS})
-endif()
+option(AERMOD_NETCDF_SUPPORT "Build AERMOD with netCDF POSTFILE support." OFF)
 
 # Add netCDF and dependencies if enabled.
 if(AERMOD_NETCDF_SUPPORT)
   # HDF5, C and HL
+  option(AERMOD_SHARED_HDF5 "Use shared HDF5 library." OFF)
   if(AERMOD_SHARED_HDF5)
     set(HDF5_USE_STATIC_LIBRARIES OFF)
     set(SZIP_LIBRARY_NAME "szip")
@@ -124,8 +105,8 @@ endif()
 # Compiler flags.
 if("${CMAKE_Fortran_COMPILER_ID}" MATCHES "Intel")
   set(CMAKE_Fortran_FLAGS         "${CMAKE_Fortran_FLAGS}")
-  set(CMAKE_Fortran_FLAGS_RELEASE "/O2 /check:format /Qprec-div- /QaxSSE2 /trace /Qdiag-disable:8291")
-  set(CMAKE_Fortran_FLAGS_DEBUG   "/O0 /check:format /Qprec-div- /QaxSSE2 /trace /Qdiag-disable:8291")
+  set(CMAKE_Fortran_FLAGS_RELEASE "-O2 -fpp -check:format -Qprec-div- -QaxSSE2 -trace -Qdiag-disable:8291")
+  set(CMAKE_Fortran_FLAGS_DEBUG   "-O0 -fpp -check:format -Qprec-div- -QaxSSE2 -trace -Qdiag-disable:8291")
 elseif("${CMAKE_Fortran_COMPILER_ID}" MATCHES "GNU")
   set(CMAKE_Fortran_FLAGS         "${CMAKE_Fortran_FLAGS}")
   set(CMAKE_Fortran_FLAGS_RELEASE "-O2 -fbounds-check -Wuninitialized -static")
@@ -169,6 +150,9 @@ add_executable(aermod
                evcalc.f
                evoutput.f)
 
+if(AERMOD_NETCDF_SUPPORT)
+  target_compile_definitions(aermod PRIVATE ENABLE_NETCDF=1)
+endif()
 target_include_directories(aermod PRIVATE ${AERMOD_INCLUDE_DIRS})
 target_link_libraries(aermod PRIVATE ${AERMOD_LINK_LIBS})
 

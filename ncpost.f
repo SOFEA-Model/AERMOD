@@ -60,6 +60,7 @@ C        OUTPUTS:
 C
 C        CALLED FROM:  ALLSETUP
 C***********************************************************************
+#ifdef ENABLE_NETCDF
       use main1, only: ngrp, nave, ntyp, iounit, alloc_err
       implicit none
       
@@ -89,6 +90,7 @@ C        call errhdl(path,modnam,'E','409','Setup Arrays')
          write(iounit,*) '  Error Occurred During Allocation of ',
      &                   'netCDF Arrays!'
       end if
+#endif
       
       end subroutine ncalloc
       
@@ -110,9 +112,12 @@ C
 C        CALLED FROM:   OUPOST
 C***********************************************************************
       use main1
+#ifdef ENABLE_NETCDF
       use netcdf
+#endif
       implicit none
       
+#ifdef ENABLE_NETCDF
       integer :: i
       character(len=5) :: data_label
       integer(kind=1), parameter, dimension(2) :: clmsg_flags = (/1,2/)
@@ -323,7 +328,7 @@ C           Set cell_methods to indicate data may be averaged.
             call nccheck(nf90_put_att(ipsunt(indgrp,indave),
      &         data_varid(indgrp,indave,i), "cell_methods",
      &         "time: mean"))
-         END DO
+         end do
      
 C        Define global attributes.
          title_att = trim(title1) // new_line('a') // trim(title2)
@@ -341,7 +346,7 @@ C        Define global attributes.
      &     NF90_GLOBAL, "Conventions", "CF-1.6"))
      
 C        End definition mode.
-         CALL NCCHECK(NF90_ENDDEF(IPSUNT(INDGRP,INDAVE)))
+         call nccheck(nf90_enddef(ipsunt(indgrp,indave)))
          
 C        Write receptor coordinate arrays.            
          call nccheck(nf90_put_var(ipsunt(indgrp,indave),
@@ -361,6 +366,10 @@ C        Write receptor coordinate arrays.
          call nccheck(nf90_put_var(ipsunt(indgrp,indave),
      &     ave_varid(indgrp,indave), kave(1:numave)))
       end if
+#else
+      write(*,*) ' NETCDF POSTFILE Option Not Supported! Aborting.'
+      stop
+#endif
       
       end subroutine ncsetup
       
@@ -381,6 +390,7 @@ C        OUTPUTS:
 C
 C        CALLED FROM:   OUPOST
 C***********************************************************************
+#ifdef ENABLE_NETCDF
       use main1
       implicit none
       
@@ -419,7 +429,8 @@ C              Copy variable IDs.
             end if
          end do
       end do
-
+#endif
+      
       end subroutine ncreset
       
      
@@ -440,6 +451,7 @@ C        OUTPUTS: Postprocessor Files
 C
 C        CALLED FROM:   POSTFL
 C***********************************************************************
+#ifdef ENABLE_NETCDF
       use main1
       use netcdf
       implicit none
@@ -526,6 +538,7 @@ C     Write calm and missing flags.
       
 C     Set previous time index to current.
       prev_time_value = time_value
+#endif
 
       end subroutine ncwrite
 
@@ -546,6 +559,7 @@ C        OUTPUTS: Error Message
 C
 C        CALLED FROM:  (This Is An Utility Programm)
 C***********************************************************************
+#ifdef ENABLE_NETCDF
       use main1, only: iounit
       use netcdf
       implicit none
@@ -559,6 +573,7 @@ C     AERMOD ERRHDL subroutine could be used if moved to module MAIN1.
          write(iounit,*) trim(nf90_strerror(rc))
          stop
       end if
+#endif
       
       end subroutine nccheck
 	  
