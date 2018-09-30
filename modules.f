@@ -79,7 +79,7 @@ C     Programmer Specified Model Parameters
 C***********************************************************************
 
       INTEGER, PARAMETER :: IFMAX=150, IKN=96, ISTRG=512, ILEN_FLD=200,
-     &                      IERRN=299
+     &                      IERRN=381
 C*#
 
 C**   IFMAX  = Max Number of Fields Per Runstream Record
@@ -1970,7 +1970,180 @@ C --- More new messages for buoyant line processing for v16216
      & ERRMSG(295)/'# receptors within buoyant line source boundary:  '/
       DATA ERRCOD(296)/'477'/,
      & ERRMSG(296)/'Event receptor within buoyant line source for:    '/
-
+     
+C --- New messages for netCDF; ERRCOD is 800 plus the absolute value of
+C     the internal netCDF error code (negative)
+      DATA ERRCOD(297)/'833'/,
+     & ERRMSG(297)/'netCDF: Not a valid ID                            '/
+      DATA ERRCOD(298)/'834'/,
+     & ERRMSG(298)/'netCDF: Too many files open                       '/
+      DATA ERRCOD(299)/'835'/,
+     & ERRMSG(299)/'netCDF: File exists && NC_NOCLOBBER               '/
+      DATA ERRCOD(300)/'836'/,
+     & ERRMSG(300)/'netCDF: Invalid argument                          '/
+      DATA ERRCOD(301)/'837'/,
+     & ERRMSG(301)/'netCDF: Write to read only                        '/
+      DATA ERRCOD(302)/'838'/,
+     & ERRMSG(302)/'netCDF: Operation not allowed in data mode        '/
+      DATA ERRCOD(303)/'839'/,
+     & ERRMSG(303)/'netCDF: Operation not allowed in define mode      '/
+      DATA ERRCOD(304)/'840'/,
+     & ERRMSG(304)/'netCDF: Index exceeds dimension bound             '/
+      DATA ERRCOD(305)/'841'/,
+     & ERRMSG(305)/'netCDF: NC_MAX_DIMS exceeded                      '/
+      DATA ERRCOD(306)/'842'/,
+     & ERRMSG(306)/'netCDF: String match to name in use               '/
+      DATA ERRCOD(307)/'843'/,
+     & ERRMSG(307)/'netCDF: Attribute not found                       '/
+      DATA ERRCOD(308)/'844'/,
+     & ERRMSG(308)/'netCDF: NC_MAX_ATTRS exceeded                     '/
+      DATA ERRCOD(309)/'845'/,
+     & ERRMSG(309)/'netCDF: Not a valid data type                     '/
+      DATA ERRCOD(310)/'846'/,
+     & ERRMSG(310)/'netCDF: Invalid dimension ID or name              '/
+      DATA ERRCOD(311)/'847'/,
+     & ERRMSG(311)/'netCDF: NC_UNLIMITED in the wrong index           '/
+      DATA ERRCOD(312)/'848'/,
+     & ERRMSG(312)/'netCDF: NC_MAX_VARS exceeded                      '/
+      DATA ERRCOD(313)/'849'/,
+     & ERRMSG(313)/'netCDF: Variable not found                        '/
+      DATA ERRCOD(314)/'850'/,
+     & ERRMSG(314)/'netCDF: Action prohibited on NC_GLOBAL varid      '/
+      DATA ERRCOD(315)/'851'/,
+     & ERRMSG(315)/'netCDF: Unknown file format                       '/
+      DATA ERRCOD(316)/'852'/,
+     & ERRMSG(316)/'netCDF: Fortran string too short                  '/
+      DATA ERRCOD(317)/'853'/,
+     & ERRMSG(317)/'netCDF: NC_MAX_NAME exceeded                      '/
+      DATA ERRCOD(318)/'854'/,
+     & ERRMSG(318)/'netCDF: NC_UNLIMITED size already in use          '/
+      DATA ERRCOD(319)/'855'/,
+     & ERRMSG(319)/'netCDF: nc_rec op when there are no record vars   '/
+      DATA ERRCOD(320)/'856'/,
+     & ERRMSG(320)/'netCDF: Attempt to convert between text & numbers '/
+      DATA ERRCOD(321)/'857'/,
+     & ERRMSG(321)/'netCDF: Start+count exceeds dimension bound       '/
+      DATA ERRCOD(322)/'858'/,
+     & ERRMSG(322)/'netCDF: Illegal stride                            '/
+      DATA ERRCOD(323)/'859'/,
+     & ERRMSG(323)/'netCDF: Name contains illegal characters          '/
+      DATA ERRCOD(324)/'860'/,
+     & ERRMSG(324)/'netCDF: Numeric conversion not representable      '/
+      DATA ERRCOD(325)/'861'/,
+     & ERRMSG(325)/'netCDF: Memory allocation (malloc) failure        '/
+      DATA ERRCOD(326)/'862'/,
+     & ERRMSG(326)/'netCDF: Variable sizes violate format constraints '/
+      DATA ERRCOD(327)/'863'/,
+     & ERRMSG(327)/'netCDF: Invalid dimension size                    '/
+      DATA ERRCOD(328)/'864'/,
+     & ERRMSG(328)/'netCDF: File likely truncated or possibly corrupt '/
+      DATA ERRCOD(329)/'865'/,
+     & ERRMSG(329)/'netCDF: Illegal axis type                         '/
+      DATA ERRCOD(330)/'866'/,
+     & ERRMSG(330)/'netCDF: DAP failure                               '/
+      DATA ERRCOD(331)/'867'/,
+     & ERRMSG(331)/'netCDF: libcurl failure                           '/
+      DATA ERRCOD(332)/'868'/,
+     & ERRMSG(332)/'netCDF: I/O failure                               '/
+      DATA ERRCOD(333)/'869'/,
+     & ERRMSG(333)/'netCDF: Variable has no data in DAP request       '/
+      DATA ERRCOD(334)/'870'/,
+     & ERRMSG(334)/'netCDF: DAP server error                          '/
+      DATA ERRCOD(335)/'871'/,
+     & ERRMSG(335)/'netCDF: Malformed or inaccessible DAP DAS         '/
+      DATA ERRCOD(336)/'872'/,
+     & ERRMSG(336)/'netCDF: Malformed or inaccessible DAP DDS         '/
+      DATA ERRCOD(337)/'873'/,
+     & ERRMSG(337)/'netCDF: Malformed or inaccessible DAP DATADDS     '/
+      DATA ERRCOD(338)/'874'/,
+     & ERRMSG(338)/'netCDF: Malformed URL                             '/
+      DATA ERRCOD(339)/'875'/,
+     & ERRMSG(339)/'netCDF: Malformed or unexpected Constraint        '/
+      DATA ERRCOD(340)/'876'/,
+     & ERRMSG(340)/'netCDF: Untranslatable construct                  '/
+      DATA ERRCOD(341)/'877'/,
+     & ERRMSG(341)/'netCDF: Access failure                            '/
+      DATA ERRCOD(342)/'878'/,
+     & ERRMSG(342)/'netCDF: Authorization failure                     '/
+      DATA ERRCOD(343)/'890'/,
+     & ERRMSG(343)/'netCDF: File not found                            '/
+      DATA ERRCOD(344)/'891'/,
+     & ERRMSG(344)/'netCDF: Cannot delete file                        '/
+      DATA ERRCOD(345)/'892'/,
+     & ERRMSG(345)/'netCDF: Internal library error                    '/
+      DATA ERRCOD(346)/'893'/,
+     & ERRMSG(346)/'netCDF: PnetCDF error                             '/
+      DATA ERRCOD(347)/'901'/,
+     & ERRMSG(347)/'netCDF: HDF error                                 '/
+      DATA ERRCOD(348)/'902'/,
+     & ERRMSG(348)/'netCDF: Error reading file                        '/
+      DATA ERRCOD(349)/'903'/,
+     & ERRMSG(349)/'netCDF: Error writing file                        '/
+      DATA ERRCOD(350)/'904'/,
+     & ERRMSG(350)/'netCDF: Error creating file                       '/
+      DATA ERRCOD(351)/'905'/,
+     & ERRMSG(351)/'netCDF: Error adding HDF5 file metadata           '/
+      DATA ERRCOD(352)/'906'/,
+     & ERRMSG(352)/'netCDF: Error defining dimensional metadata       '/
+      DATA ERRCOD(353)/'907'/,
+     & ERRMSG(353)/'netCDF: Error opening HDF5 attribute              '/
+      DATA ERRCOD(354)/'908'/,
+     & ERRMSG(354)/'netCDF: Problem with variable metadata            '/
+      DATA ERRCOD(355)/'909'/,
+     & ERRMSG(355)/'netCDF: Error creating HDF5 compound type         '/
+      DATA ERRCOD(356)/'910'/,
+     & ERRMSG(356)/'netCDF: Attribute already exists                  '/
+      DATA ERRCOD(357)/'911'/,
+     & ERRMSG(357)/'netCDF: netCDF-4 op on netCDF-3 file              '/
+      DATA ERRCOD(358)/'912'/,
+     & ERRMSG(358)/'netCDF: netCDF-4 op on strict NC3 netCDF-4 file   '/
+      DATA ERRCOD(359)/'913'/,
+     & ERRMSG(359)/'netCDF: netCDF-3 op on netCDF-4 file              '/
+      DATA ERRCOD(360)/'914'/,
+     & ERRMSG(360)/'netCDF: File not opened for parallel access       '/
+      DATA ERRCOD(361)/'915'/,
+     & ERRMSG(361)/'netCDF: Error initializing for parallel access    '/
+      DATA ERRCOD(362)/'916'/,
+     & ERRMSG(362)/'netCDF: Bad group ID                              '/
+      DATA ERRCOD(363)/'917'/,
+     & ERRMSG(363)/'netCDF: Bad type ID                               '/
+      DATA ERRCOD(364)/'918'/,
+     & ERRMSG(364)/'netCDF: Type has already been defined             '/
+      DATA ERRCOD(365)/'919'/,
+     & ERRMSG(365)/'netCDF: Bad field ID                              '/
+      DATA ERRCOD(366)/'920'/,
+     & ERRMSG(366)/'netCDF: Bad class                                 '/
+      DATA ERRCOD(367)/'921'/,
+     & ERRMSG(367)/'netCDF: Mapped access for atomic types only       '/
+      DATA ERRCOD(368)/'922'/,
+     & ERRMSG(368)/'netCDF: Late _FillValue definition                '/
+      DATA ERRCOD(369)/'923'/,
+     & ERRMSG(369)/'netCDF: Late variable properties definition       '/
+      DATA ERRCOD(370)/'924'/,
+     & ERRMSG(370)/'netCDF: Problem with HDF5 dimscales               '/
+      DATA ERRCOD(371)/'925'/,
+     & ERRMSG(371)/'netCDF: No group found                            '/
+      DATA ERRCOD(372)/'926'/,
+     & ERRMSG(372)/'netCDF: Bad storage specification                 '/
+      DATA ERRCOD(373)/'927'/,
+     & ERRMSG(373)/'netCDF: Bad chunk sizes                           '/
+      DATA ERRCOD(374)/'928'/,
+     & ERRMSG(374)/'netCDF: Feature not available in build            '/
+      DATA ERRCOD(375)/'929'/,
+     & ERRMSG(375)/'netCDF: Error in using diskless access            '/
+      DATA ERRCOD(376)/'930'/,
+     & ERRMSG(376)/'netCDF: Attempt to extend dataset during ind. I/O '/
+      DATA ERRCOD(377)/'931'/,
+     & ERRMSG(377)/'netCDF: MPI operation failed                      '/
+      DATA ERRCOD(378)/'932'/,
+     & ERRMSG(378)/'netCDF: Filter operation failed                   '/
+      DATA ERRCOD(379)/'933'/,
+     & ERRMSG(379)/'netCDF: RC file failure                           '/
+      DATA ERRCOD(380)/'934'/,
+     & ERRMSG(380)/'netCDF: File fails strict null-byte header check  '/
+      DATA ERRCOD(381)/'935'/,
+     & ERRMSG(381)/'netCDF: In-memory File operation failed           '/
+     
       END MODULE MAIN1
 
 
