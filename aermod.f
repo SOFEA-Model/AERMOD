@@ -189,6 +189,7 @@ C=======================================================================
 C
 C     Variable Declarations
       USE MAIN1
+      USE NCPOST
       USE BUOYANT_LINE
       
       IMPLICIT NONE
@@ -1115,6 +1116,9 @@ C           contributions for max daily 1-hour averages
             CALL MAXDCONT_LOOP
 
          END IF
+         
+C        Close netCDF POSTFILEs                             ---   CALL NCCLOSE
+         CALL NCCLOSE
 
       ELSE
 C ---    FATAL error occurred during PRESETUP phase; initialize MODOPS string 
