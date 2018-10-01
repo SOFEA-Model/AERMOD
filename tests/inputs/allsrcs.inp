@@ -12,7 +12,7 @@ CO STARTING
    POLLUTID  SO2                                                                                                                    
    RUNORNOT  RUN
    EVENTFIL  allsrcs_evt.inp
-   ERRORFIL  ../Outputs/ALLSRCS_ERRORS.OUT
+   ERRORFIL  ../outputs/ALLSRCS_ERRORS.OUT
 CO FINISHED                                                                                                                         
                                                                                                                                     
 SO STARTING
@@ -124,7 +124,7 @@ OU STARTING
    PLOTFILE  24  VOL       FIRST   ../plotfiles/ALLSRCS_VOL_24H.PLT
    PLOTFILE  24  STACK     FIRST   ../plotfiles/ALLSRCS_STACK_24H.PLT
    PLOTFILE  24  OPENPIT   FIRST   ../plotfiles/ALLSRCS_OPENPIT_24H.PLT
-   SUMMFILE  ../Outputs/ALLSRCS.SUM                                                                                                      
+   SUMMFILE  ../outputs/ALLSRCS.SUM                                                                                                      
    PLOTFILE   1  STACKDW   FIRST   ../plotfiles/ALLSRCS_STACKDW_01H.PLT
    PLOTFILE   1  AREA      FIRST   ../plotfiles/ALLSRCS_AREA_01H.PLT
    PLOTFILE   1  CIRC      FIRST   ../plotfiles/ALLSRCS_CIRC_01H.PLT
@@ -132,11 +132,11 @@ OU STARTING
    PLOTFILE   1  VOL       FIRST   ../plotfiles/ALLSRCS_VOL_01H.PLT
    PLOTFILE   1  STACK     FIRST   ../plotfiles/ALLSRCS_STACK_01H.PLT
    PLOTFILE   1  OPENPIT   FIRST   ../plotfiles/ALLSRCS_OPENPIT_01H.PLT
-   POSTFILE   1  STACKDW   PLOT    ../postfiles/ALLSRCS_STACKDW_01H.PST
-   POSTFILE   1  AREA      PLOT    ../postfiles/ALLSRCS_AREA_01H.PST
-   POSTFILE   1  CIRC      PLOT    ../postfiles/ALLSRCS_CIRC_01H.PST
-   POSTFILE   1  AREAP     PLOT    ../postfiles/ALLSRCS_AREAP_01H.PST
-   POSTFILE   1  VOL       PLOT    ../postfiles/ALLSRCS_VOL_01H.PST
-   POSTFILE   1  STACK     PLOT    ../postfiles/ALLSRCS_STACK_01H.PST
-   POSTFILE   1  OPENPIT   PLOT    ../postfiles/ALLSRCS_OPENPIT_01H.PST
+   POSTFILE   1  STACKDW   NETCDF  ../postfiles/ALLSRCS.NC
+   POSTFILE   1  AREA      NETCDF  ../postfiles/ALLSRCS.NC
+   POSTFILE   1  CIRC      NETCDF  ../postfiles/ALLSRCS.NC
+   POSTFILE   1  AREAP     NETCDF  ../postfiles/ALLSRCS.NC
+   POSTFILE   1  VOL       NETCDF  ../postfiles/ALLSRCS.NC
+   POSTFILE   1  STACK     NETCDF  ../postfiles/ALLSRCS.NC
+   POSTFILE   1  OPENPIT   NETCDF  ../postfiles/ALLSRCS.NC
 OU FINISHED

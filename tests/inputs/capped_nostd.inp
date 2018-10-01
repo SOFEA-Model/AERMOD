@@ -12,7 +12,7 @@ CO STARTING
    POLLUTID  SO2                                                                                                                    
    RUNORNOT  RUN
    EVENTFIL  capped_nostd_evt.inp
-   ERRORFIL  ../Outputs/CAPPED_NOSTD_ERRORS.OUT
+   ERRORFIL  ../outputs/CAPPED_NOSTD_ERRORS.OUT
 CO FINISHED                                                                                                                         
                                                                                                                                     
 SO STARTING
@@ -69,13 +69,13 @@ ME FINISHED
 OU STARTING                                                                                                                         
    RECTABLE  ALLAVE  FIRST-SECOND                                                                                                   
    MAXTABLE  ALLAVE  50
-   SUMMFILE  ../Outputs/CAPPED_NOSTD.SUM
+   SUMMFILE  ../outputs/CAPPED_NOSTD.SUM
    PLOTFILE  1  STACK2H   FIRST  ../plotfiles/CAPPED_NOSTD_STACK2H_01H.PLT
    PLOTFILE  1  STACK2HE  FIRST  ../plotfiles/CAPPED_NOSTD_STACK2HE_01H.PLT
    PLOTFILE  1  STACK2C   FIRST  ../plotfiles/CAPPED_NOSTD_STACK2C_01H.PLT
    PLOTFILE  1  STACK2CE  FIRST  ../plotfiles/CAPPED_NOSTD_STACK2CE_01H.PLT
-   POSTFILE  1  STACK2H   PLOT   ../postfiles/CAPPED_NOSTD_STACK2H_01H.PST
-   POSTFILE  1  STACK2HE  PLOT   ../postfiles/CAPPED_NOSTD_STACK2HE_01H.PST
-   POSTFILE  1  STACK2C   PLOT   ../postfiles/CAPPED_NOSTD_STACK2C_01H.PST
-   POSTFILE  1  STACK2CE  PLOT   ../postfiles/CAPPED_NOSTD_STACK2CE_01H.PST
+   POSTFILE  1  STACK2H   NETCDF ../postfiles/CAPPED_NOSTD.NC
+   POSTFILE  1  STACK2HE  NETCDF ../postfiles/CAPPED_NOSTD.NC
+   POSTFILE  1  STACK2C   NETCDF ../postfiles/CAPPED_NOSTD.NC
+   POSTFILE  1  STACK2CE  NETCDF ../postfiles/CAPPED_NOSTD.NC
 OU FINISHED

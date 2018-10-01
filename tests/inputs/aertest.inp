@@ -11,7 +11,7 @@ CO STARTING
    POLLUTID  SO2                                                                                                                    
    RUNORNOT  RUN
    EVENTFIL  aertest_evt.inp
-   ERRORFIL  ../Outputs/AERTEST_ERRORS.OUT
+   ERRORFIL  ../outputs/AERTEST_ERRORS.OUT
 CO FINISHED                                                                                                                         
                                                                                                                                     
 SO STARTING
@@ -71,7 +71,7 @@ ME FINISHED
 OU STARTING                                                                                                                         
    RECTABLE  ALLAVE  FIRST-THIRD
    MAXTABLE  ALLAVE  50
-   SUMMFILE  ../Outputs/AERTEST.SUM                                                                                         
+   SUMMFILE  ../outputs/AERTEST.SUM                                                                                         
    PLOTFILE  1  ALL  FIRST  ../plotfiles/AERTEST_01H.PLT
-   POSTFILE  1  ALL  PLOT   ../postfiles/AERTEST_01H.PST 
+   POSTFILE  1  ALL  NETCDF ../postfiles/AERTEST.NC 
 OU FINISHED

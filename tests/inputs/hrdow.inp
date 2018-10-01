@@ -6,7 +6,7 @@ CO STARTING
    POLLUTID  OTHER
    RUNORNOT  RUN
    EVENTFIL  hrdow_evt.inp
-   ERRORFIL  ../Outputs/HRDOW_ERRORS.OUT
+   ERRORFIL  ../outputs/HRDOW_ERRORS.OUT
 CO FINISHED                                                                                                                         
                                                                                                                                     
 SO STARTING                                                                                                                         
@@ -155,13 +155,13 @@ ME FINISHED
 OU STARTING                                                                                                                         
    RECTABLE  ALLAVE  FIRST-SECOND
    MAXTABLE  ALLAVE  10
-   SEASONHR  STACK1  ../Outputs/SEAHRST1.DAT
-   SEASONHR  STACK2  ../Outputs/SEAHRST2.DAT
-   SEASONHR  STACK3  ../Outputs/SEAHRST3.DAT
-   SEASONHR  STACK4  ../Outputs/SEAHRST4.DAT
-   SEASONHR  STACK5  ../Outputs/SEAHRST5.DAT
-   SEASONHR  STACK6  ../Outputs/SEAHRST6.DAT
-   SUMMFILE  ../Outputs/HRDOW.SUM
+   SEASONHR  STACK1  ../outputs/SEAHRST1.DAT
+   SEASONHR  STACK2  ../outputs/SEAHRST2.DAT
+   SEASONHR  STACK3  ../outputs/SEAHRST3.DAT
+   SEASONHR  STACK4  ../outputs/SEAHRST4.DAT
+   SEASONHR  STACK5  ../outputs/SEAHRST5.DAT
+   SEASONHR  STACK6  ../outputs/SEAHRST6.DAT
+   SUMMFILE  ../outputs/HRDOW.SUM
    FILEFORM  EXP
    PLOTFILE  1  STACK1  FIRST  ../plotfiles/HRDOW_STACK1_01H.PLT
    PLOTFILE  1  STACK2  FIRST  ../plotfiles/HRDOW_STACK2_01H.PLT
@@ -169,10 +169,10 @@ OU STARTING
    PLOTFILE  1  STACK4  FIRST  ../plotfiles/HRDOW_STACK4_01H.PLT
    PLOTFILE  1  STACK5  FIRST  ../plotfiles/HRDOW_STACK5_01H.PLT
    PLOTFILE  1  STACK6  FIRST  ../plotfiles/HRDOW_STACK6_01H.PLT   
-   POSTFILE  1  STACK1  PLOT   ../postfiles/HRDOW_STACK1_01H.PST
-   POSTFILE  1  STACK2  PLOT   ../postfiles/HRDOW_STACK2_01H.PST
-   POSTFILE  1  STACK3  PLOT   ../postfiles/HRDOW_STACK3_01H.PST
-   POSTFILE  1  STACK4  PLOT   ../postfiles/HRDOW_STACK4_01H.PST
-   POSTFILE  1  STACK5  PLOT   ../postfiles/HRDOW_STACK5_01H.PST
-   POSTFILE  1  STACK6  PLOT   ../postfiles/HRDOW_STACK6_01H.PST
+   POSTFILE  1  STACK1  NETCDF ../postfiles/HRDOW.NC
+   POSTFILE  1  STACK2  NETCDF ../postfiles/HRDOW.NC
+   POSTFILE  1  STACK3  NETCDF ../postfiles/HRDOW.NC
+   POSTFILE  1  STACK4  NETCDF ../postfiles/HRDOW.NC
+   POSTFILE  1  STACK5  NETCDF ../postfiles/HRDOW.NC
+   POSTFILE  1  STACK6  NETCDF ../postfiles/HRDOW.NC
 OU FINISHED

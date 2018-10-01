@@ -7,7 +7,7 @@ CO STARTING
    POLLUTID  CHROMIUM
    RUNORNOT  RUN                                                                                                                    
    EVENTFIL  testprt2_evt.inp
-   ERRORFIL  ../Outputs/TESTPRT2_ERRORS.OUT
+   ERRORFIL  ../outputs/TESTPRT2_ERRORS.OUT
 CO FINISHED                                                                                                                         
                                                                                                                                     
 SO STARTING         
@@ -51,10 +51,10 @@ OU STARTING
    PLOTFILE  24      ALL  FIRST  ../plotfiles/TESTPRT2_24H.PLT
    PLOTFILE  MONTH   ALL  FIRST  ../plotfiles/TESTPRT2_MON.PLT
    PLOTFILE  ANNUAL  ALL         ../plotfiles/TESTPRT2ANN.PLT
-   POSTFILE  MONTH   ALL  PLOT   ../postfiles/TESTPRT2_MON.PST
-   SEASONHR  ALL                 ../Outputs/TESTPRT2_SEASHR.DAT
-   SUMMFILE  ../Outputs/TESTPRT2.SUM
+   POSTFILE  MONTH   ALL  NETCDF ../postfiles/TESTPRT2.NC
+   SEASONHR  ALL                 ../outputs/TESTPRT2_SEASHR.DAT
+   SUMMFILE  ../outputs/TESTPRT2.SUM
    FILEFORM  EXP
    PLOTFILE   1      ALL  FIRST  ../plotfiles/TESTPRT2_01H.PLT
-   POSTFILE   1      ALL  PLOT   ../postfiles/TESTPRT2_01H.PST 
+   POSTFILE   1      ALL  NETCDF ../postfiles/TESTPRT2.NC 
 OU FINISHED

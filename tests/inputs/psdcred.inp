@@ -6,7 +6,7 @@ CO STARTING
    OZONEVAL 40.  PPB                                                                                                                
    OZONEFIL ozone.dat  ppb  (i2,3i3,f9.3)                                                                                           
    NO2STACK 0.10
-   ERRORFIL ../Outputs/PSDCRED_ERRORS.OUT  
+   ERRORFIL ../outputs/PSDCRED_ERRORS.OUT  
    RUNORNOT RUN                                                                                                                     
 CO FINISHED                                                                                                                         
                                                                                                                                     
@@ -49,9 +49,9 @@ ME FINISHED
 OU STARTING                                                                                                                         
    RECTABLE ALLAVE FIRST SECOND
    MAXTABLE ALLAVE 100
-   SUMMFILE ../Outputs/PSDCRED.SUM
+   SUMMFILE ../outputs/PSDCRED.SUM
    PLOTFILE  1  NAAQS  FIRST  ../plotfiles/PSDCRED_NAAQS_01H.PLT
    PLOTFILE  1  PSDINC FIRST  ../plotfiles/PSDCRED_PSDINC_01H.PLT
-   POSTFILE  1  NAAQS  PLOT   ../postfiles/PSDCRED_NAAQS_01H.PST
-   POSTFILE  1  PSDINC PLOT   ../postfiles/PSDCRED_PSDINC_01H.PST
+   POSTFILE  1  NAAQS  NETCDF ../postfiles/PSDCRED_01H.NC
+   POSTFILE  1  PSDINC NETCDF ../postfiles/PSDCRED_01H.NC
 OU FINISHED

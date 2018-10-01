@@ -12,7 +12,7 @@ CO STARTING
    POLLUTID  SO2                                                                                                                    
    RUNORNOT  RUN
    EVENTFIL  capped_evt.inp
-   ERRORFIL  ../Outputs/CAPPED_ERRORS.OUT
+   ERRORFIL  ../outputs/CAPPED_ERRORS.OUT
 CO FINISHED                                                                                                                         
                                                                                                                                     
 SO STARTING
@@ -209,7 +209,7 @@ ME FINISHED
 OU STARTING                                                                                                                         
    RECTABLE  ALLAVE  FIRST-SECOND                                                                                                   
    MAXTABLE  ALLAVE  50       
-   SUMMFILE  ../Outputs/CAPPED.SUM                                                                                                      
+   SUMMFILE  ../outputs/CAPPED.SUM                                                                                                      
    PLOTFILE  1  STACK1     FIRST  ../plotfiles/CAPPED_STACK1_01H.PLT
    PLOTFILE  1  STACK1C    FIRST  ../plotfiles/CAPPED_STACK1C_01H.PLT
    PLOTFILE  1  STACK1H    FIRST  ../plotfiles/CAPPED_STACK1H_01H.PLT
@@ -219,13 +219,13 @@ OU STARTING
    PLOTFILE  1  STACK2H    FIRST  ../plotfiles/CAPPED_STACK2H_01H.PLT
    PLOTFILE  1  STACK2C0   FIRST  ../plotfiles/CAPPED_STACK2C0_01H.PLT
    PLOTFILE  1  STACK2CE   FIRST  ../plotfiles/CAPPED_STACK2CE_01H.PLT   
-   POSTFILE  1  STACK1     PLOT   ../postfiles/CAPPED_STACK1_01H.PST   
-   POSTFILE  1  STACK1C    PLOT   ../postfiles/CAPPED_STACK1C_01H.PST 
-   POSTFILE  1  STACK1H    PLOT   ../postfiles/CAPPED_STACK1H_01H.PST
-   POSTFILE  1  STACK1C0   PLOT   ../postfiles/CAPPED_STACK1C0_01H.PST
-   POSTFILE  1  STACK2     PLOT   ../postfiles/CAPPED_STACK2_01H.PST
-   POSTFILE  1  STACK2C    PLOT   ../postfiles/CAPPED_STACK2C_01H.PST
-   POSTFILE  1  STACK2H    PLOT   ../postfiles/CAPPED_STACK2H_01H.PST
-   POSTFILE  1  STACK2C0   PLOT   ../postfiles/CAPPED_STACK2C0_01H.PST
-   POSTFILE  1  STACK2CE   PLOT   ../postfiles/CAPPED_STACK2CE_01H.PST
+   POSTFILE  1  STACK1     NETCDF ../postfiles/CAPPED.NC   
+   POSTFILE  1  STACK1C    NETCDF ../postfiles/CAPPED.NC 
+   POSTFILE  1  STACK1H    NETCDF ../postfiles/CAPPED.NC
+   POSTFILE  1  STACK1C0   NETCDF ../postfiles/CAPPED.NC
+   POSTFILE  1  STACK2     NETCDF ../postfiles/CAPPED.NC
+   POSTFILE  1  STACK2C    NETCDF ../postfiles/CAPPED.NC
+   POSTFILE  1  STACK2H    NETCDF ../postfiles/CAPPED.NC
+   POSTFILE  1  STACK2C0   NETCDF ../postfiles/CAPPED.NC
+   POSTFILE  1  STACK2CE   NETCDF ../postfiles/CAPPED.NC
 OU FINISHED

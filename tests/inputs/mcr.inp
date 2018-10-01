@@ -5,7 +5,7 @@ CO STARTING
    POLLUTID  SO2
    RUNORNOT  run
    EVENTFIL  mcr_evt.inp
-   ERRORFIL  ../Outputs/MCR_ERRORS.OUT
+   ERRORFIL  ../outputs/MCR_ERRORS.OUT
 CO FINISHED
 
 SO STARTING
@@ -163,13 +163,13 @@ ME FINISHED
 OU STARTING
    RECTABLE  allave first-second
    MAXTABLE  allave  400
-   RANKFILE  1       400    ../Outputs/MCR01.RNK
-   RANKFILE  3       400    ../Outputs/MCR03.RNK
-   RANKFILE  24      400    ../Outputs/MCR24.RNK
-   POSTFILE  3  ALL  PLOT   ../postfiles/MCR_03H.PST
-   POSTFILE  24 ALL  PLOT   ../postfiles/MCR_24H.PST
+   RANKFILE  1       400    ../outputs/MCR01.RNK
+   RANKFILE  3       400    ../outputs/MCR03.RNK
+   RANKFILE  24      400    ../outputs/MCR24.RNK
+   POSTFILE  3  ALL  NETCDF ../postfiles/MCR.NC
+   POSTFILE  24 ALL  NETCDF ../postfiles/MCR.NC
    PLOTFILE  period   all   ../plotfiles/MCRANN.PLT
-   SUMMFILE  ../Outputs/MCR.SUM
+   SUMMFILE  ../outputs/MCR.SUM
    PLOTFILE  1  ALL  FIRST  ../plotfiles/MCR_01H.PLT
-   POSTFILE  1  ALL  PLOT   ../postfiles/MCR_01H.PST
+   POSTFILE  1  ALL  NETCDF ../postfiles/MCR.NC
 OU FINISHED

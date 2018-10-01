@@ -15,7 +15,7 @@ CO STARTING
    URBANOPT  URBAREA4  0.25E6  Somewhere_else_still_in_the_USA  1.0
    RUNORNOT  RUN
    EVENTFIL  multurb_evt.inp
-   ERRORFIL  ../Outputs/MULTURB_ERRORS.OUT
+   ERRORFIL  ../outputs/MULTURB_ERRORS.OUT
 CO FINISHED                                                                                                                         
                                                                                                                                     
 SO STARTING
@@ -38,13 +38,13 @@ ME FINISHED
 OU STARTING                                                                                                                         
    RECTABLE  ALLAVE  FIRST-SECOND                                                                                                   
    MAXTABLE  ALLAVE  50
-   SUMMFILE  ../Outputs/MULTURB.SUM
+   SUMMFILE  ../outputs/MULTURB.SUM
    PLOTFILE  1  STACK1  FIRST  ../plotfiles/MULTURB_STACK1_01H.PLT
    PLOTFILE  1  STACK2  FIRST  ../plotfiles/MULTURB_STACK2_01H.PLT
    PLOTFILE  1  STACK3  FIRST  ../plotfiles/MULTURB_STACK3_01H.PLT
    PLOTFILE  1  STACK4  FIRST  ../plotfiles/MULTURB_STACK4_01H.PLT
-   POSTFILE  1  STACK1  PLOT   ../postfiles/MULTURB_STACK1_01H.PST
-   POSTFILE  1  STACK2  PLOT   ../postfiles/MULTURB_STACK2_01H.PST
-   POSTFILE  1  STACK3  PLOT   ../postfiles/MULTURB_STACK3_01H.PST
-   POSTFILE  1  STACK4  PLOT   ../postfiles/MULTURB_STACK4_01H.PST
+   POSTFILE  1  STACK1  NETCDF ../postfiles/MULTURB.NC
+   POSTFILE  1  STACK2  NETCDF ../postfiles/MULTURB.NC
+   POSTFILE  1  STACK3  NETCDF ../postfiles/MULTURB.NC
+   POSTFILE  1  STACK4  NETCDF ../postfiles/MULTURB.NC
 OU FINISHED

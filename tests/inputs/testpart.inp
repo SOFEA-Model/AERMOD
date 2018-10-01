@@ -6,7 +6,7 @@ CO STARTING
    AVERTIME  1                                                                                                                      
    POLLUTID  CHROMIUM
    RUNORNOT  RUN                                                                                                                    
-   ERRORFIL  ../Outputs/TESTPART_ERRORS.OUT
+   ERRORFIL  ../outputs/TESTPART_ERRORS.OUT
 CO FINISHED                                                                                                                         
                                                                                                                                     
 SO STARTING                                      
@@ -87,7 +87,7 @@ OU STARTING
    RECTABLE  ALLAVE  FIRST-SECOND                                                                                                    
    MAXTABLE  ALLAVE  10                                                                                                             
    DAYTABLE  ALLAVE
-   SUMMFILE  ../Outputs/TESTPART.SUM
+   SUMMFILE  ../outputs/TESTPART.SUM
    PLOTFILE  1  ALL  FIRST  ../plotfiles/TESTPART_01H.PLT
-   POSTFILE  1  ALL  PLOT   ../postfiles/TESTPART_01H.PST
+   POSTFILE  1  ALL  NETCDF ../postfiles/TESTPART.NC
 OU FINISHED

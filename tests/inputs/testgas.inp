@@ -6,7 +6,7 @@ CO STARTING
    AVERTIME  1                                                                                                                      
    POLLUTID  BENZENE
    RUNORNOT  RUN                                                                                                                    
-   ERRORFIL  ../Outputs/TESTGAS_ERRORS.OUT
+   ERRORFIL  ../outputs/TESTGAS_ERRORS.OUT
 ** Define Wesely Seasonal Categories for Each Calendar Month
    GDSEASON  4  4  4  5  1  1  1  1  1  2  3  3
 ** Define uniform use category 4
@@ -91,7 +91,7 @@ OU STARTING
    RECTABLE  ALLAVE  FIRST-SECOND
    MAXTABLE  ALLAVE  10
    DAYTABLE  ALLAVE
-   SUMMFILE  ../Outputs/TESTGAS.SUM
+   SUMMFILE  ../outputs/TESTGAS.SUM
    PLOTFILE  1  ALL  FIRST  ../plotfiles/TESTGAS_01H.PLT
-   POSTFILE  1  ALL  PLOT   ../postfiles/TESTGAS_01H.PST
+   POSTFILE  1  ALL  NETCDF ../postfiles/TESTGAS.NC
 OU FINISHED

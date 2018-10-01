@@ -6,7 +6,7 @@ CO STARTING
    POLLUTID  SO2                                                                                                                    
    RUNORNOT  RUN
    EVENTFIL  openpits_evt.inp
-   ERRORFIL  ../Outputs/OPENPITS_ERRORS.OUT
+   ERRORFIL  ../outputs/OPENPITS_ERRORS.OUT
 CO FINISHED                                                                                                                         
                                                                                                                                     
 SO STARTING
@@ -49,11 +49,11 @@ ME FINISHED
 OU STARTING                                                                                                                         
    RECTABLE  ALLAVE  FIRST-SECOND                                                                                                   
    MAXTABLE  ALLAVE  50       
-   SUMMFILE  ../Outputs/OPENPITS.SUM                                                                                                      
+   SUMMFILE  ../outputs/OPENPITS.SUM                                                                                                      
    PLOTFILE  1  PITGAS   FIRST  ../plotfiles/OPENPITS_PITGAS_01H.PLT
    PLOTFILE  1  PITPRT1  FIRST  ../plotfiles/OPENPITS_PITPRT1_01H.PLT
    PLOTFILE  1  PITPRT2  FIRST  ../plotfiles/OPENPITS_PITPRT2_01H.PLT
-   POSTFILE  1  PITGAS   PLOT   ../postfiles/OPENPITS_PITGAS_01H.PST 
-   POSTFILE  1  PITPRT1  PLOT   ../postfiles/OPENPITS_PITPRT1_01H.PST
-   POSTFILE  1  PITPRT2  PLOT   ../postfiles/OPENPITS_PITPRT2_01H.PST
+   POSTFILE  1  PITGAS   NETCDF ../postfiles/OPENPITS.NC
+   POSTFILE  1  PITPRT1  NETCDF ../postfiles/OPENPITS.NC
+   POSTFILE  1  PITPRT2  NETCDF ../postfiles/OPENPITS.NC
 OU FINISHED
