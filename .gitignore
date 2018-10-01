@@ -1,0 +1,7 @@
+# Objects and Modules
+*.obj
+*.mod
+
+# Executables
+*.exe
+
