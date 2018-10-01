@@ -7,12 +7,14 @@ set COMPILE_FLAGS=/O2 /DENABLE_NETCDF /check:format /Qprec-div- /QaxSSE2 /trace 
 set LINK_FLAGS=/O2 /Qipo- /check:format /Qprec-div- /QaxSSE2
 set LINKER_FLAGS=^
  /LIBPATH:"D:\Lib\hdf5-1.8.21-vc141-mt-x64\lib"^
+ /LIBPATH:"D:\Lib\zlib-1.2.11-vc141-mt-x64\lib"^
+ /LIBPATH:"D:\Lib\szip-2.1.1-vc141-mt-x64\lib"^
  /LIBPATH:"D:\Lib\curl-7.61.1-vc141-mt-x64\lib"^
  /LIBPATH:"D:\Lib\netcdf-c-4.6.1-vc141-mt-x64\lib"^
  /LIBPATH:"D:\Lib\netcdf-fortran-4.4.4-x64\lib"^
- /NODEFAULTLIB:MSVCRT^
  crypt32.lib wldap32.lib normaliz.lib wsock32.lib ws2_32.lib^
- libzlib.lib libszip.lib libhdf5.lib libhdf5_hl.lib libcurl_a.lib netcdf.lib netcdff.lib
+ zlib.lib libszip.lib libhdf5.lib libhdf5_hl.lib libcurl_a.lib netcdf.lib netcdff.lib^
+ libucrt.lib libmmt.lib
 
 ifort /compile_only %COMPILE_FLAGS% modules.f
 ifort /fpp /compile_only %COMPILE_FLAGS% ncpost.f
@@ -41,7 +43,7 @@ ifort /compile_only %COMPILE_FLAGS% evset.f
 ifort /compile_only %COMPILE_FLAGS% evcalc.f
 ifort /compile_only %COMPILE_FLAGS% evoutput.f
 
-ifort /exe:aermod.exe %LINK_FLAGS%^
+ifort /exe:bin64/aermod_netcdf.exe %LINK_FLAGS%^
  MODULES.obj NCPOST.obj AERMOD.obj SETUP.obj COSET.obj SOSET.obj^
  RESET.obj MESET.obj OUSET.obj INPSUM.obj METEXT.obj^
  IBLVAL.obj SIGGRID.obj TEMPGRID.obj WINDGRID.obj CALC1.obj^
