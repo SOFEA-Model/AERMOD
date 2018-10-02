@@ -437,6 +437,9 @@ C           Set cell_methods to indicate values may be averaged.
             call nccheck(nf90_put_att(ipsunt(indgrp,indave),
      &         data_varid(indgrp,indave,i), "cell_methods",
      &         "time: mean"))
+C           Set _FillValue attribute to NF90_FILL_DOUBLE.
+            call nccheck(nf90_def_var_fill(ipsunt(indgrp,indave),
+     &         data_varid(indgrp,indave,i), 0, NF90_FILL_DOUBLE))
          end do
 
 C        Define global attributes.
