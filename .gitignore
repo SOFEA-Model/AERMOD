@@ -2,6 +2,9 @@
 *.obj
 *.mod
 
-# Executables
-*.exe
-
+# Test Output
+tests/meteorology/
+tests/outputs/
+tests/plotfiles/
+tests/postfiles/
+tests/rdata/
