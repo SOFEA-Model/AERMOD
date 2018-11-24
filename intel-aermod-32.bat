@@ -9,8 +9,8 @@ set LINKER_FLAGS=^
  /LIBPATH:"D:\Lib\hdf5-1.8.21-vc141-mt-x32\lib"^
  /LIBPATH:"D:\Lib\zlib-1.2.11-vc141-mt-x32\lib"^
  /LIBPATH:"D:\Lib\szip-2.1.1-vc141-mt-x32\lib"^
- /LIBPATH:"D:\Lib\curl-7.61.1-vc141-mt-x32\lib"^
- /LIBPATH:"D:\Lib\netcdf-c-4.6.1-vc141-mt-x32\lib"^
+ /LIBPATH:"D:\Lib\curl-7.62.0-vc141-mt-x32\lib"^
+ /LIBPATH:"D:\Lib\netcdf-c-4.6.2-vc141-mt-x32\lib"^
  /LIBPATH:"D:\Lib\netcdf-fortran-4.4.4-x32\lib"^
  crypt32.lib wldap32.lib normaliz.lib wsock32.lib ws2_32.lib^
  zlib.lib libszip.lib libhdf5.lib libhdf5_hl.lib libcurl_a.lib netcdf.lib netcdff.lib^
