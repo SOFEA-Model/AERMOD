@@ -12,6 +12,9 @@ C        PURPOSE: To process SOurce Pathway card images
 C
 C        PROGRAMMER:  Roger Brode, Jeff Wang
 C
+C        MODIFIED:   To include buffer zone option (keyword BUFRZONE).
+C                    John Buonagurio, Exponent, 04/10/2018
+C
 C        MODIFIED:   Added code to save bouyant line source parameters
 C                    and perform the initial rotation (BL_ROTATE1) to 
 C                    align the long axis of the buildings with the
@@ -443,6 +446,18 @@ C        Set Status Switch
 C        WRITE Warning Message: BLPGROUP keyword is not operational yet;
 C        all BUOYLINE sources are combined.
          CALL ERRHDL(PATH,MODNAM,'W','385','combined')
+
+      ELSE IF (KEYWRD .EQ. 'BUFRZONE') THEN
+C        Set Status Switch
+         ISSTAT(45) = ISSTAT(45) + 1
+C        Check for SRCGROUP Card Out Of Order
+         IF (.NOT.PSDCREDIT .AND. ISSTAT(24) .NE. 0) THEN
+            CALL ERRHDL(PATH,MODNAM,'E','140','SRCGROUP')
+         ELSE IF (PSDCREDIT .AND. ISSTAT(34) .NE. 0) THEN
+            CALL ERRHDL(PATH,MODNAM,'E','140','PSDGROUP')
+         END IF
+C        Process BUFRZONE keyword                        ---   CALL BUFZON
+         CALL BUFZON
 
       ELSE IF (KEYWRD .EQ. 'FINISHED') THEN
 C        Set Status Switch
@@ -6256,4 +6271,118 @@ C              save the coordinates and check the next pair
       END DO
 
       RETURN
+      END
+
+      SUBROUTINE BUFZON
+C***********************************************************************
+C                 BUFZON Module of the AMS/EPA Regulatory Model - AERMOD
+C
+C        PURPOSE: Processes Buffer Zone Inputs
+C
+C        PROGRAMMER: John Buonagurio, Exponent
+C
+C        DATE:    April 10, 2018
+C
+C        INPUTS:  Input Runstream Image Parameters
+C
+C        OUTPUTS: Buffer Zone Parameters
+C
+C        CALLED FROM:   SOCARD
+C***********************************************************************
+
+C     Variable Declarations
+      USE MAIN1
+      IMPLICIT NONE
+      CHARACTER MODNAM*12
+
+      INTEGER :: I, ISDX
+      LOGICAL FOUND
+
+C     Variable Initializations
+      FOUND  = .FALSE.
+      MODNAM = 'BUFZON'
+
+C     Check The Number Of The Fields
+      IF (IFC .LE. 2) THEN
+C        Error Message: No Parameters
+         CALL ERRHDL(PATH,MODNAM,'E','200',KEYWRD)
+         GO TO 999
+      ELSE IF (IFC .LT. 6) THEN
+C        Error Message: Too Few Parameters
+         CALL ERRHDL(PATH,MODNAM,'E','201',KEYWRD)
+         GO TO 999
+      ELSE IF (IFC .GT. 6) THEN
+C        Error Message: Too Many Parameters
+         CALL ERRHDL(PATH,MODNAM,'E','202',KEYWRD)
+         GO TO 999
+      END IF
+
+C     Search For The Source ID Index
+      CALL SINDEX(SRCID,NSRC,FIELD(3),ISDX,FOUND)
+
+      IF (FOUND) THEN
+C        Check for applicable source type
+         IF (SRCTYP(ISDX) .NE. 'AREA' .AND.
+     &       SRCTYP(ISDX) .NE. 'AREACIRC' .AND.
+     &       SRCTYP(ISDX) .NE. 'AREAPOLY') THEN
+C           WRITE Error Message: Invalid Source Type for this option
+            CALL ERRHDL(PATH,MODNAM,'E','267',SRCID(ISDX))
+            GO TO 999
+         ELSE
+            L_BufferZone(ISDX) = .TRUE.
+         END IF
+C        Increment Number of Zones for This Source
+         NUM_ZONES(ISDX) = NUM_ZONES(ISDX) + 1
+         IZON = NUM_ZONES(ISDX)
+
+C        Assign The Parameter Arrays
+         CALL STONUM(FIELD(4),ILEN_FLD,FNUM,IMIT)
+C        Check The Numerical Field
+         IF (IMIT .NE. 1) THEN
+            CALL ERRHDL(PATH,MODNAM,'E','208',KEYWRD)
+            GO TO 999
+         END IF
+         IF (FNUM .GE. 0.0) THEN
+            ZONE_DIST(IZON,ISDX) = FNUM
+         ELSE
+C           WRITE Error Message: Negative zone distance
+            CALL ERRHDL(PATH,MODNAM,'E','209','ZoneDist')
+         END IF
+
+         CALL STODBL(FIELD(5),ILEN_FLD,DNUM,IMIT)
+C        Check The Numerical Field
+         IF (IMIT .NE. 1) THEN
+            CALL ERRHDL(PATH,MODNAM,'E','208',KEYWRD)
+            GO TO 999
+         END IF
+         ZONE_START(IZON,ISDX) = NINT(DNUM)
+
+         CALL STODBL(FIELD(6),ILEN_FLD,DNUM,IMIT)
+C        Check The Numerical Field
+         IF (IMIT .NE. 1) THEN
+            CALL ERRHDL(PATH,MODNAM,'E','208',KEYWRD)
+            GO TO 999
+         END IF
+         ZONE_END(IZON,ISDX) = NINT(DNUM)
+
+C        Check for temporally overlapping buffer zones
+         DO I = 1, IZON-1
+            IF( (ZONE_START(I,ISDX) .GE.
+     &           ZONE_START(IZON,ISDX) .AND.
+     &           ZONE_START(I,ISDX) .LE.
+     &           ZONE_END(IZON,ISDX)) .OR.
+     &          (ZONE_END(I,ISDX) .GE.
+     &           ZONE_START(IZON,ISDX) .AND.
+     &           ZONE_START(I,ISDX) .LE.
+     &           ZONE_END(IZON,ISDX)) ) THEN
+               CALL ERRHDL(PATH,MODNAM,'E','268',SRCID(ISDX))
+               GO TO 999
+            END IF
+         END DO
+      ELSE
+C        WRITE Error Message    ! Source Location Has Not Been Identified Yet
+         CALL ERRHDL(PATH,MODNAM,'E','300',KEYWRD)
+      END IF
+
+ 999  RETURN
       END

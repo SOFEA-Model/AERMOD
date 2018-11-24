@@ -20,6 +20,7 @@ endif()
 
 # Define AERMOD specific options.
 option(AERMOD_NETCDF_SUPPORT "Build AERMOD with netCDF POSTFILE support." OFF)
+option(AERMOD_IPC_SUPPORT "Build AERMOD with interprocess communication support." OFF)
 
 # Add netCDF and dependencies if enabled.
 if(AERMOD_NETCDF_SUPPORT)
@@ -123,6 +124,7 @@ endif()
 set(AERMOD_INCLUDE_DIRS ${AERMOD_INCLUDE_DIRS} ${PROJECT_BINARY_DIR})
 
 add_executable(aermod
+               ipc.f
                modules.f
                ncpost.f
                aermod.f
@@ -153,6 +155,11 @@ add_executable(aermod
 if(AERMOD_NETCDF_SUPPORT)
   target_compile_definitions(aermod PRIVATE ENABLE_NETCDF=1)
 endif()
+
+if(AERMOD_IPC_SUPPORT)
+  target_compile_definitions(aermod PRIVATE ENABLE_IPC=1)
+endif()
+
 target_include_directories(aermod PRIVATE ${AERMOD_INCLUDE_DIRS})
 target_link_libraries(aermod PRIVATE ${AERMOD_LINK_LIBS})
 

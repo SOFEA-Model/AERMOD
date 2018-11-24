@@ -2470,6 +2470,9 @@ C        PROGRAMMER: Jeff Wang, Roger Brode
 C
 C        DATE:    March 2, 1992
 C
+C        MODIFIED:   To incorporate modifications for buffer zone option.
+C                    John Buonagurio, Exponent, 04/10/2018
+C
 C        MODIFIED:   
 C                    Added arrays to save WDSIN and WDCOS by source for use
 C                    with PVMRM option.  Corrects potential problem for 
@@ -2526,10 +2529,12 @@ C     Variable Declarations
       DOUBLE PRECISION :: XDEP, WIDTH, LENGTH, XMINR, XMAXR, XPOINT,
      &                    QTKSAV, ADJ
       DOUBLE PRECISION :: AEROUT(NUMTYP), FYOUT
+      LOGICAL :: LRECIN
 
 C     Variable Initializations
       MODNAM = 'ACALC'
       WAKE = .FALSE.
+      LRECIN = .FALSE.
 
 C     Initialize __VAL arrays (1:NUMTYP)
       HRVAL   = 0.0D0
@@ -2730,6 +2735,25 @@ C           Set initial effective parameters
                UEFFN  = US
                SVEFFN = SVS
                SWEFFN = SWS
+            END IF
+
+C ---       Check to see if receptor is inside buffer zone.
+            IF (NZON .GT. 0) THEN
+               IF (L_BufferZone(ISRC)) THEN
+C                 Loop through buffer zones for this source
+                  DO IZON = 1, NUM_ZONES(ISRC)
+                     IF (FULLDATE .GE. ZONE_START(IZON,ISRC) .AND.
+     &                   FULLDATE .LE. ZONE_END(IZON,ISRC)) THEN
+                        LRECIN = .FALSE.
+C ---                   Check buffer zone                   ---   CALL CHKBUF
+                        CALL CHKBUF(LRECIN)
+                        IF (LRECIN) THEN
+C ---                      Receptor is inside buffer zone, cycle to next receptor
+                           CYCLE RECEPTOR_LOOP
+                        END IF
+                     END IF
+                  END DO
+               END IF
             END IF
 
 C ---       Check to see if receptor is beyond edge of plume laterally.
@@ -3097,6 +3121,93 @@ C        Output 'ARC' Values for EVALFILE                   ---   CALL EVALFL
             CALL EVALFL
          END IF
 
+      END IF
+
+      RETURN
+      END
+
+      SUBROUTINE CHKBUF(LRECIN)
+C***********************************************************************
+C                 CHKBUF Module of the AMS/EPA Regulatory Model - AERMOD
+C
+C        PURPOSE: Checks for Receptors Located Inside Buffer Zones
+C                 Around AREA, AREACIRC and AREAPOLY Sources
+C
+C        PROGRAMMER: John Buonagurio, Exponent
+C
+C        DATE:    April 10, 2018
+C
+C        INPUTS:  Zone Index
+C                 Receptor Location
+C                 Buffer Zone Arrays
+C
+C        OUTPUTS: Logical Variable, LRECIN
+C
+C        CALLED FROM:   ACALC
+C***********************************************************************
+
+C     Variable Declarations
+      USE MAIN1
+      IMPLICIT NONE
+      CHARACTER MODNAM*12
+      
+      LOGICAL, INTENT(INOUT) :: LRECIN
+      
+      INTEGER :: I, IPNP
+      DOUBLE PRECISION, ALLOCATABLE :: XVM(:), YVM(:)
+      DOUBLE PRECISION :: X1, Y1, X2, Y2
+      DOUBLE PRECISION :: DIST, DISTMIN
+      
+      DOUBLE PRECISION, DIMENSION(2) :: PR, P1, P2, V12
+      DOUBLE PRECISION :: MV12, S
+
+C     Variable Initializations
+      MODNAM = 'CHKBUF'
+      LRECIN = .FALSE.
+
+C     Store vertices in temporary arrays
+      ALLOCATE (XVM(NVERT+1), YVM(NVERT+1))
+      DO I = 1, NVERT+1
+         XVM(I) = AXVERT(I,ISRC)
+         YVM(I) = AYVERT(I,ISRC)
+      END DO
+      
+C     Check for receptor located inside source boundary
+      CALL PNPOLY(XR,YR,XVM,YVM,4,IPNP)
+      IF (IPNP .GT. 0) THEN
+C        Receptor is inside buffer zone
+         LRECIN = .TRUE.
+      ELSE
+C        Calculate minimum distance to source
+C        Iterate over line segments
+         DISTMIN = HUGE(0.0d0)
+         DO I = 1, NVERT        
+C           Initialize vectors
+            PR = (/ XR, YR /)
+            P1 = (/ XVM(I), YVM(I) /)
+            P2 = (/ XVM(I+1), YVM(I+1) /)
+C           Vector from P1 to P2
+            V12 = P1 - P2
+C           Magnitude of vector from P1 to P2
+            MV12 = NORM2(V12)
+            IF (MV12 .EQ. 0.0d0) THEN
+C              P1 == P2; calculate receptor to point distance
+               DIST = NORM2(P1 - PR)
+            ELSE
+               S = DOT_PRODUCT(P1-PR, V12) / DOT_PRODUCT(V12, V12)
+               IF (S < 0.0d0) THEN
+                  S = 0.0d0 ! use first endpoint
+               ELSE IF (S > 1.0d0) THEN
+                  S = 1.0d0 ! use second endpoint
+               END IF
+               DIST = NORM2(PR - P1 + S*V12)
+            END IF
+            DISTMIN = MIN(DISTMIN, DIST)
+         END DO
+         IF (DISTMIN .LT. ZONE_DIST(IZON,ISRC)) THEN
+C           Receptor is inside buffer zone
+            LRECIN = .TRUE.
+         END IF
       END IF
 
       RETURN

@@ -190,6 +190,7 @@ C
 C     Variable Declarations
       USE MAIN1
       USE NCPOST
+      USE IPC_CLIENT
       USE BUOYANT_LINE
       
       IMPLICIT NONE
@@ -315,6 +316,9 @@ c         lout = linp
          CALL USAGE
          stop
       end if
+      
+C     Connect to Named Pipe
+      CALL IPC_CONNECT
 
 C      write(*,*) inpfil(1:linp)//":"
 C      write(*,*) inpfil//":"
@@ -1189,6 +1193,9 @@ C        OPEN and Write Out Permanent Error Message File    ---   CALL MSGWRT
 C     Close and Delete The Error Message And EVENT Temporary Files
       CLOSE(IERUNT,STATUS='DELETE')
       CLOSE(ITEVUT,STATUS='DELETE')
+      
+C     Disconnect from Named Pipe
+      CALL IPC_DISCONNECT
 
       END
 
@@ -1227,6 +1234,9 @@ C
 C        PROGRAMMER: Roger Brode, Jeff Wang
 C
 C        DATE:    March 2, 1992
+C
+C        MODIFIED:  To add interprocess communication support.
+C                   John Buonagurio, Exponent, 04/16/2018
 C
 C        MODIFIED:   Incorporated non-DFAULT/BETA ARM2 option for NO2
 C                    Mark Podrez, RTP Environmental Associates, Inc.
@@ -1279,6 +1289,7 @@ C***********************************************************************
 
 C     Variable Declarations
       USE MAIN1
+      USE IPC_CLIENT
       IMPLICIT NONE
       CHARACTER MODNAM*12
       CHARACTER BGReadErr*5, BGEndErr*5
@@ -1320,6 +1331,8 @@ C        Exit HOUR_LOOP if runtime error found
      &                                                  .NOT.EOF) THEN
 C           Increment counter for total number of hours processed
             IF (.NOT.L_SkipMessages) NTOTHRS = NTOTHRS + 1
+C           Send progress message to named pipe
+            CALL IPC_SEND_TOTHRS(NTOTHRS)
          ELSE IF (FULLDATE.LT.IEDATE .AND. IEDATE.LT.2147123124 .AND.
      &                                                         EOF) THEN
 C ---       End of met data file(s) reached before user-specified End Date
@@ -3283,6 +3296,9 @@ C        PROGRAMMER: Jeff Wang
 C
 C        DATE:    March 2, 1992
 C
+C        MODIFIED:  To add interprocess communication support.
+C                   John Buonagurio, Exponent, 04/16/2018
+C
 C        MODIFIED:  Sets upper limit on line number included in error
 C                   message to avoid overflowing the field; also increased
 C                   field length for last message field from 8 to 12 to
@@ -3298,6 +3314,7 @@ C***********************************************************************
 C
 C     Variable Declarations
       USE MAIN1
+      USE IPC_CLIENT
       IMPLICIT NONE
 
       INTEGER :: I, ILINE_PRT
@@ -3351,6 +3368,10 @@ C     Write Out The Error Message
      &                   MODNAM(1:MIN(LEN_TRIM(MODNAM),12)),ERRMG1,
      &                   INPMSG(1:MIN(LEN_TRIM(INPMSG),12))
  1111 FORMAT(A2,1X,A1,A3,I8,1X,A12,': ',A50,1X,A12)
+
+C     Send Error Message to IPC Server
+      CALL IPC_SEND_ERRMSG(PATHWY,INERTP,INERCD,ILINE_PRT,MODNAM,
+     &                     ERRMG1,INPMSG)
 
  999  RETURN
       END
@@ -3879,7 +3900,10 @@ C
 C        DATE:    September 21, 1996
 C
 C        MODIFIED:  Added support for netCDF POSTFILEs.
-C                   John Buonagurio, Exponent, 09/29/18
+C                   John Buonagurio, Exponent, 07/06/18
+C
+C        MODIFIED:  To include buffer zone parameters.
+C                   John Buonagurio, Exponent, 04/10/18
 C
 C        MODIFIED:  To include CHIBL, PARTCH, buoyant line parameters,
 C                   and source and receptor coordinates in a rotated 
@@ -4046,6 +4070,18 @@ C --- Allocate arrays for AREA sources based on NVMAX+1 to address issues with A
             CALL ERRHDL(PATH,MODNAM,'E','409','Setup Arrays')
             WRITE(IOUNIT,*) '  Error Occurred During Allocation of ',
      &                      'Urban Arrays!'
+         END IF
+      END IF
+      
+      IF (NZON .GT. 0) THEN
+         ALLOCATE  (L_BufferZone(NSRC), NUM_ZONES(NSRC),
+     &              ZONE_START(NZON,NSRC), ZONE_END(NZON,NSRC),
+     &              ZONE_DIST(NZON,NSRC),
+     &              STAT=IASTAT)
+         IF (IASTAT .NE. 0) THEN
+            CALL ERRHDL(PATH,MODNAM,'E','409','Setup Arrays')
+            WRITE(IOUNIT,*) '  Error Occurred During Allocation of ',
+     &                      'Buffer Zones!'
          END IF
       END IF
 
@@ -5866,6 +5902,9 @@ C        PROGRAMMER: Roger Brode
 C
 C        DATE:    September 24, 1996
 C
+C        MODIFIED:   Modified to add counter for number of buffer zones.
+C                    John Buonagurio, Exponent, 04/10/2018
+C
 C        MODIFIED:   Modified to add counter for number of lines in a 
 C                    buoyant line source
 C                    Amec Foster Wheeler, 06/30/2015
@@ -5941,6 +5980,8 @@ C ---    Add variable for number of lines in buoyant line source
          NBLINES = 0
 C ---    Add variable for number of urban sources
          NURBSRC = 0
+C ---    Add variable for number of buffer zones
+         NZON = 0
          NVMAX  = 0
          NVTEMP = 0
          NPTEMP = 0
@@ -6159,6 +6200,9 @@ C --- Check for number of urbansrc
       
       ELSE IF (KEYWRD .EQ. 'URBANSRC' .AND. L_MULTURB) THEN
          NURBSRC = NURBSRC + IFC - 3
+      
+      ELSE IF (KEYWRD .EQ. 'BUFRZONE') THEN
+         NZON = NZON + 1
       
       ELSE IF (KEYWRD .EQ. 'OLMGROUP') THEN
          IF (NOLM .EQ. 0) PREVGRPID = '        '

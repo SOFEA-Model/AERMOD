@@ -72,14 +72,15 @@ C**   IYM    = Max Number of Y-coord (Direction) Values Per Receptor Network
 C**   NNET   = Max Number of Cartesian and/or Polar Receptor Networks
 C**   NARC   = Maximum number of Receptor Groupings ('ARCs') for EVALCART
 C**   NURB   = Maximum number of Urban Areas
+C**   NZON   = Maximum number of Buffer Zones (BUFRZONE Keyword)
 
 
 C***********************************************************************
 C     Programmer Specified Model Parameters
 C***********************************************************************
 
-      INTEGER, PARAMETER :: IFMAX=150, IKN=96, ISTRG=512, ILEN_FLD=200,
-     &                      IERRN=381
+      INTEGER, PARAMETER :: IFMAX=150, IKN=98, ISTRG=512, ILEN_FLD=200,
+     &                      IERRN=383
 C*#
 
 C**   IFMAX  = Max Number of Fields Per Runstream Record
@@ -352,7 +353,7 @@ C --- Declare array for O3SECTs by hour for EVENT processing
       INTEGER ::  NSRC, NREC, NGRP, NAVE, NVAL, NTYP, NMAX,
      &            NSEC, NQF, NBF, NO3F, NPDMAX, NNET, IXM, IYM,
      &            NEVE, NUMEVE, IEVENT, NARC, NOLM, NURB, NPSD,
-     &            IO3MAX(6), IBGMAX(6) 
+     &            NZON, IO3MAX(6), IBGMAX(6) 
 
       INTEGER ::  NUMCONT     ! Number of contributing sources for PVMRM
       
@@ -464,6 +465,12 @@ C*#
 
       ALLOCATABLE :: PSDSRCTYP(:)
 
+C**   Variables for buffer zone
+      LOGICAL, ALLOCATABLE :: L_BufferZone(:)
+      INTEGER, ALLOCATABLE :: NUM_ZONES(:)
+      INTEGER, ALLOCATABLE :: ZONE_START(:,:), ZONE_END(:,:)
+      DOUBLE PRECISION, ALLOCATABLE :: ZONE_DIST(:,:)
+      INTEGER :: IZON
 
 C**   NDXSTK   Index of the gridded height immediately below stack top
 C**   FULLHRQ  Date/Time Stamp for Hourly Emissions Data
@@ -1209,7 +1216,7 @@ C***********************************************************************
      &   'MASSFRAX','PARTDENS','METHOD_2','CONCUNIT','DEPOUNIT',
      &   'GASDEPOS','HOUREMIS','NO2RATIO','AREAVERT','URBANSRC',
      &   'SRCGROUP','OLMGROUP','PSDGROUP','BACKGRND','BACKUNIT',
-     &   'BGSECTOR','BLPINPUT',
+     &   'BGSECTOR','BLPINPUT','BLPGROUP','BUFRZONE',
      &   'INCLUDED','EVENTPER','EVENTLOC','GRIDCART','GRIDPOLR',
      &   'DISCCART','DISCPOLR','EVALCART','SURFFILE','PROFFILE',
      &   'PROFBASE','SURFDATA','UAIRDATA','SITEDATA','STARTEND',
@@ -1281,7 +1288,9 @@ C               28 = no2stack                      34 = psdgroup
 C               29 = no2equil                      40 = backgrnd
 C               30 = low_wind                      41 = backunit
 C               31 = o3sector                      42 = bgsector
-C               50 = finished                      43 = blavgval
+C               50 = finished                      43 = blpinput
+C                                                  44 = blpgroup
+C                                                  45 = bufrzone
 C                                                  50 = finished
 
 C     IRSTAT:    1 = starting            IESTAT:    1 = starting
@@ -2144,6 +2153,12 @@ C     the internal netCDF error code (negative)
       DATA ERRCOD(381)/'935'/,
      & ERRMSG(381)/'netCDF: In-memory File operation failed           '/
      
+C --- New messages for area source buffer zones
+      DATA ERRCOD(382)/'267'/
+     & ERRMSG(382)/'Buffer Zone Specified for Non-AREA Source         '/
+      DATA ERRCOD(383)/'268'/
+     & ERRMSG(383)/'Buffer Zones Overlap Temporally for Source ID     '/
+
       END MODULE MAIN1
 
 

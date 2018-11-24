@@ -1134,6 +1134,9 @@ C                                        Processing)
 C
 C        DATE:    December 15, 1993
 C
+C        MODIFIED:  To initialize buffer zone variables.
+C                   John Buonagurio, Exponent, 04/10/2018
+C
 C        MODIFIED:  To remove reference to obsolete TG pathway inherited
 C                   from ISCST3 code.
 C                   R.W. Brode, U.S. EPA/OAQPS/AQMG, 10/19/2009
@@ -1464,6 +1467,12 @@ C     Add gas dry deposition parameters
 
       IF (ALLOCATED(QFACT))   QFACT(:,:)   = 0.0D0
 
+C --- Initialize buffer zone parameters
+      IF (ALLOCATED(NUM_ZONES)) NUM_ZONES(:) = 0
+      IF (ALLOCATED(ZONE_DIST)) ZONE_DIST(:,:) = 0.0D0
+      IF (ALLOCATED(ZONE_START)) ZONE_START(:,:) = 0.0D0
+      IF (ALLOCATED(ZONE_END)) ZONE_END(:,:) = 0.0D0
+      
 C --- Initialize NUMO3Sects and NUMBGSects to 1
       IF (.NOT. L_O3Sector) NUMO3Sects = 1
       IF (.NOT. L_BGSector) NUMBGSects = 1

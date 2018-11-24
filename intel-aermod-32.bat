@@ -3,7 +3,7 @@
 
 setlocal
 
-set COMPILE_FLAGS=/O2 /DENABLE_NETCDF /check:format /Qprec-div- /QaxSSE2 /trace /Qdiag-disable:8291 /I"D:\Lib\netcdf-fortran-4.4.4-x32\include"
+set COMPILE_FLAGS=/O2 /DENABLE_NETCDF /DENABLE_IPC /check:format /Qprec-div- /QaxSSE2 /trace /Qdiag-disable:8291 /I"D:\Lib\netcdf-fortran-4.4.4-x32\include"
 set LINK_FLAGS=/O2 /Qipo- /check:format /Qprec-div- /QaxSSE2
 set LINKER_FLAGS=^
  /LIBPATH:"D:\Lib\hdf5-1.8.21-vc141-mt-x32\lib"^
@@ -18,6 +18,7 @@ set LINKER_FLAGS=^
 
 ifort /compile_only %COMPILE_FLAGS% modules.f
 ifort /fpp /compile_only %COMPILE_FLAGS% ncpost.f
+ifort /fpp /compile_only %COMPILE_FLAGS% ipc.f
 ifort /compile_only %COMPILE_FLAGS% aermod.f
 ifort /compile_only %COMPILE_FLAGS% setup.f
 ifort /compile_only %COMPILE_FLAGS% coset.f
@@ -44,7 +45,7 @@ ifort /compile_only %COMPILE_FLAGS% evcalc.f
 ifort /compile_only %COMPILE_FLAGS% evoutput.f
 
 ifort /exe:bin32/aermod_netcdf.exe %LINK_FLAGS%^
- MODULES.obj NCPOST.obj AERMOD.obj SETUP.obj COSET.obj SOSET.obj^
+ MODULES.obj NCPOST.obj IPC.obj AERMOD.obj SETUP.obj COSET.obj SOSET.obj^
  RESET.obj MESET.obj OUSET.obj INPSUM.obj METEXT.obj^
  IBLVAL.obj SIGGRID.obj TEMPGRID.obj WINDGRID.obj CALC1.obj^
  CALC2.obj PRISE.obj PRIME.obj SIGMAS.obj PITAREA.obj^
