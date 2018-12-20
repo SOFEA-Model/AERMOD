@@ -14,6 +14,7 @@ C**   SYNC_ON_WRITE = Call NF90_SYNC on every call to NCWRITE.
 C --- netCDF Dimension IDs (NGRP,NAVE)
       integer, allocatable :: rec_dimid(:,:)
       integer, allocatable :: arc_dimid(:,:)
+      integer, allocatable :: net_dimid(:,:)
       integer, allocatable :: grp_dimid(:,:)
       integer, allocatable :: ave_dimid(:,:)
       integer, allocatable :: time_dimid(:,:)
@@ -28,6 +29,8 @@ C --- netCDF Variable IDs (NGRP,NAVE)
       integer, allocatable :: rec_varid(:,:)
       integer, allocatable :: arc_varid(:,:)
       integer, allocatable :: arcid_varid(:,:)
+      integer, allocatable :: net_varid(:,:)
+      integer, allocatable :: netid_varid(:,:)
       integer, allocatable :: grp_varid(:,:)
       integer, allocatable :: ave_varid(:,:)
       integer, allocatable :: time_varid(:,:)
@@ -75,7 +78,8 @@ C***********************************************************************
       integer :: iastat
 
       allocate (rec_dimid(ngrp,nave),
-     &          arc_dimid(ngrp,nave), 
+     &          arc_dimid(ngrp,nave),
+     &          net_dimid(ngrp,nave),
      &          grp_dimid(ngrp,nave),
      &          ave_dimid(ngrp,nave),
      &          time_dimid(ngrp,nave),
@@ -88,6 +92,8 @@ C***********************************************************************
      &          rec_varid(ngrp,nave),
      &          arc_varid(ngrp,nave),
      &          arcid_varid(ngrp,nave),
+     &          net_varid(ngrp,nave),
+     &          netid_varid(ngrp,nave),
      &          grp_varid(ngrp,nave),
      &          ave_varid(ngrp,nave),
      &          time_varid(ngrp,nave),
@@ -129,12 +135,13 @@ C***********************************************************************
       implicit none
 
 #ifdef ENABLE_NETCDF
-      integer :: i
+      integer :: i, j
       character(len=5) :: data_label
       integer(kind=1), dimension(2), parameter :: clmsg_flags = (/1,2/)
       integer, parameter :: title_len = ilen_fld * 2 + 1
       character(len=title_len) :: title_att
       character(len=15) :: versn_att
+      integer, dimension(numrec) :: ndxnet
 
 C     Check for restart option (RSTINP).
       if (rstinp) then
@@ -147,6 +154,8 @@ C        Get dimension IDs.
      &                               rec_dimid(indgrp,indave)))
          call nccheck(nf90_inq_dimid(ipsunt(indgrp,indave), "arc",
      &                               arc_dimid(indgrp,indave)))
+         call nccheck(nf90_inq_dimid(ipsunt(indgrp,indave), "net",
+     &                               net_dimid(indgrp,indave)))
          call nccheck(nf90_inq_dimid(ipsunt(indgrp,indave), "grp",
      &                               grp_dimid(indgrp,indave)))
          call nccheck(nf90_inq_dimid(ipsunt(indgrp,indave), "ave", 
@@ -171,6 +180,10 @@ C        Get variable IDs.
      &                               arc_varid(indgrp,indave)))
          call nccheck(nf90_inq_varid(ipsunt(indgrp,indave), "arcid",
      &                               arcid_varid(indgrp,indave)))
+         call nccheck(nf90_inq_varid(ipsunt(indgrp,indave), "net",
+     &                               net_varid(indgrp,indave)))
+         call nccheck(nf90_inq_varid(ipsunt(indgrp,indave), "netid",
+     &                               netid_varid(indgrp,indave)))
          call nccheck(nf90_inq_varid(ipsunt(indgrp,indave), "grp",
      &                               grp_varid(indgrp,indave)))
          call nccheck(nf90_inq_varid(ipsunt(indgrp,indave), "ave",
@@ -205,6 +218,8 @@ C        Define dimensions.
      &      numrec, rec_dimid(indgrp,indave)))
          call nccheck(nf90_def_dim(ipsunt(indgrp,indave), "arc", 
      &      numarc, arc_dimid(indgrp,indave)))
+         call nccheck(nf90_def_dim(ipsunt(indgrp,indave), "net", 
+     &      innet, net_dimid(indgrp,indave)))
          call nccheck(nf90_def_dim(ipsunt(indgrp,indave), "grp", 
      &      numgrp, grp_dimid(indgrp,indave)))
          call nccheck(nf90_def_dim(ipsunt(indgrp,indave), "ave", 
@@ -240,6 +255,13 @@ C        Define variables.
      &      nf90_char,
      &      (/ strlen_dimid(indgrp,indave), arc_dimid(indgrp,indave) /),
      &      arcid_varid(indgrp,indave)))
+         call nccheck(nf90_def_var(ipsunt(indgrp,indave), "net", 
+     &      nf90_int, rec_dimid(indgrp,indave),
+     &      net_varid(indgrp,indave)))
+         call nccheck(nf90_def_var(ipsunt(indgrp,indave), "netid", 
+     &      nf90_char,
+     &      (/ strlen_dimid(indgrp,indave), net_dimid(indgrp,indave) /),
+     &      netid_varid(indgrp,indave)))
          call nccheck(nf90_def_var(ipsunt(indgrp,indave), "grp", 
      &      nf90_char,
      &      (/ strlen_dimid(indgrp,indave), grp_dimid(indgrp,indave) /),
@@ -380,6 +402,23 @@ C        Arc ID.
      &      arcid_varid(indgrp,indave), "long_name",
      &      "receptor_arc"))
      
+C        Receptor network index.
+         call nccheck(nf90_put_att(ipsunt(indgrp,indave),
+     &      net_varid(indgrp,indave), "long_name",
+     &      "receptor_network_index"))
+C        Indicate that this is an index variable for the net dimension.
+         call nccheck(nf90_put_att(ipsunt(indgrp,indave),
+     &      net_varid(indgrp,indave), "instance_dimension",
+     &      "net"))
+C        Set _FillValue attribute to zero.
+         call nccheck(nf90_def_var_fill(ipsunt(indgrp,indave),
+     &      net_varid(indgrp,indave), 0, 0))
+     
+C        Network ID.
+         call nccheck(nf90_put_att(ipsunt(indgrp,indave),
+     &      netid_varid(indgrp,indave), "long_name",
+     &      "receptor_network"))
+     
 C        Source group ID.
          call nccheck(nf90_put_att(ipsunt(indgrp,indave),
      &      grp_varid(indgrp,indave), "long_name",
@@ -482,7 +521,25 @@ C        for non-EVALCART receptors.
      
 C        Write arcid array.
          call nccheck(nf90_put_var(ipsunt(indgrp,indave),
-     &     arcid_varid(indgrp,indave), arcid(1:numarc)))
+     &      arcid_varid(indgrp,indave), arcid(1:numarc)))
+
+C        Write network index by receptor.
+         do i = 1, numrec
+            ndxnet(i) = 0
+            do j = 1, innet
+               if (netid(i) .eq. ntid(j)) then
+                  ndxnet(i) = j
+                  exit
+               end if
+            end do
+         end do
+         
+         call nccheck(nf90_put_var(ipsunt(indgrp,indave),
+     &      net_varid(indgrp,indave), ndxnet(1:numrec)))
+         
+C        Write netid array.
+         call nccheck(nf90_put_var(ipsunt(indgrp,indave),
+     &      netid_varid(indgrp,indave), ntid(1:innet)))
      
 C        Write source groups and averaging periods. The grp and ave
 C        variables will contain all source groups and averaging 
@@ -494,10 +551,10 @@ C        fill value (NF90_FILL_DOUBLE) for any source groups and
 C        averaging periods not selected for output.
 
          call nccheck(nf90_put_var(ipsunt(indgrp,indave),
-     &     grp_varid(indgrp,indave), grpid(1:numgrp)))
+     &      grp_varid(indgrp,indave), grpid(1:numgrp)))
      
          call nccheck(nf90_put_var(ipsunt(indgrp,indave),
-     &     ave_varid(indgrp,indave), kave(1:numave)))
+     &      ave_varid(indgrp,indave), kave(1:numave)))
       end if
 #else
 C     AERMOD was not compiled with netCDF support.
@@ -546,6 +603,7 @@ C              Copy NCID.
 C              Copy dimension IDs.
                rec_dimid(indgrp,indave) = rec_dimid(i,j)
                arc_dimid(indgrp,indave) = arc_dimid(i,j)
+               net_dimid(indgrp,indave) = net_dimid(i,j)
                grp_dimid(indgrp,indave) = grp_dimid(i,j)
                ave_dimid(indgrp,indave) = ave_dimid(i,j)
                time_dimid(indgrp,indave) = time_dimid(i,j)
@@ -560,6 +618,8 @@ C              Copy variable IDs.
                rec_varid(indgrp,indave) = rec_varid(i,j)
                arc_varid(indgrp,indave) = arc_varid(i,j)
                arcid_varid(indgrp,indave) = arcid_varid(i,j)
+               net_varid(indgrp,indave) = net_varid(i,j)
+               netid_varid(indgrp,indave) = netid_varid(i,j)
                grp_varid(indgrp,indave) = grp_varid(i,j)
                ave_varid(indgrp,indave) = ave_varid(i,j)
                time_varid(indgrp,indave) = time_varid(i,j)
