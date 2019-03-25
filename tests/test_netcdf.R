@@ -1,5 +1,6 @@
 library(ncdf4)
 library(data.table)
+library(anytime)
 
 # Utility function to return case_postdata object from .RData file.
 load_case_postdata <- function(f) {
@@ -39,6 +40,16 @@ for(ncf in ncfiles)
     rec <- as.vector(ncvar_get(nc, "rec"))
     time <- as.vector(ncvar_get(nc, "time"))
     
+    # Get time units and convert from UDUNITS to AERMOD convention.
+    # "hours since yyyy-mm-dd hh:mm:ss" -> yymmddhh
+    time.units <- ncatt_get(nc, "time", attname="units")[[2]]
+    time.units <- gsub("hours since ", "", time.units)
+    time.start <- anytime(time.units, tz="UTC", asUTC=TRUE)
+    
+    # Format time variable using AERMOD convention.
+    time <- time.start + time*60*60
+    time <- as.integer(format(time, format="%y%m%d%H", tz="GMT")) + 1
+    
     # Extract concentration variable.
     conc <- as.vector(ncvar_get(nc, "conc"))
     
@@ -47,7 +58,7 @@ for(ncf in ncfiles)
     
     # Merge cartesian product of coordinate variables with concentration.
     ndt <- cbind(CJ(ave, grp, rec, time, sorted=FALSE), conc)
-    setnames(ndt, c("ave", "group", "rec", "time", "nc.avgconc"))
+    setnames(ndt, c("ave", "group", "rec", "date", "nc.avgconc"))
     rm(ave, grp, rec, time, conc)
     
     # Remove fill values.
@@ -71,8 +82,7 @@ for(ncf in ncfiles)
   rdt[, avgtime := as.character(avgtime)]
   rdt[, group := as.character(group)]
   
-  # Calculate time and receptor index values over RData.
-  rdt[, time := .GRP - 1, .(date)]
+  # Calculate receptor index values over RData.
   rdt[, rec := seq_len(.N), rleid(date, avgtime, group)]
   
   # Make numeric averaging time from string averaging periods.
@@ -83,7 +93,7 @@ for(ncf in ncfiles)
   
   # Ensure that the netcdf and rdata output has the same number of records.
   if (nrow(ndt) != nrow(rdt)) {
-    cat("TEST FAILED:  Record count mismatch.\n", file=stderr())
+    cat("--- TEST FAILED:  Record count mismatch.\n", file=stderr())
     next
   }
   
@@ -92,14 +102,14 @@ for(ncf in ncfiles)
 #-------------------------------------------------------------------------------
   
   # Merge the RData and netCDF data tables.
-  keycols <- c("time", "ave", "group", "rec")
+  keycols <- c("date", "ave", "group", "rec")
   setkeyv(ndt, keycols)
   setkeyv(rdt, keycols)
   dt <- merge(ndt, rdt)
   
   # Ensure that all records are present.
   if (nrow(dt) != nrow(rdt)) {
-    cat("TEST FAILED:  Records lost in merge.\n", file=stderr())
+    cat("--- TEST FAILED:  Records lost in merge.\n", file=stderr())
     next
   }
   
@@ -112,9 +122,9 @@ for(ncf in ncfiles)
   print(summary)
   
   if (summary[,max.error] > 0.001) {
-    cat("TEST FAILED:  Error exceeds threshold (0.001).\n", file=stderr())
+    cat("--- TEST FAILED:  Error exceeds threshold (0.001).\n", file=stderr())
     next
   }
   
-  cat("TEST PASSED\n")
+  cat("+++ TEST PASSED\n")
 }

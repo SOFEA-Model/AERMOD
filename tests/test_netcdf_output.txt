@@ -3,7 +3,7 @@ PLOT POSTFILES:   AERTEST_01H.rdata
 Error Statistics:
      max.error    rms.error
 1: 4.99952e-06 2.894374e-06
-TEST PASSED
++++ TEST PASSED
 
 
 NETCDF POSTFILE:  ALLSRCS.NC 
@@ -11,7 +11,7 @@ PLOT POSTFILES:   ALLSRCS_AREAP_01H.rdata, ALLSRCS_AREA_01H.rdata, ALLSRCS_CIRC_
 Error Statistics:
       max.error    rms.error
 1: 4.999982e-06 2.239492e-06
-TEST PASSED
++++ TEST PASSED
 
 
 NETCDF POSTFILE:  CAPPED_NOSTD.NC 
@@ -19,7 +19,7 @@ PLOT POSTFILES:   CAPPED_NOSTD_STACK2CE_01H.rdata, CAPPED_NOSTD_STACK2C_01H.rdat
 Error Statistics:
       max.error   rms.error
 1: 4.999882e-06 2.90717e-06
-TEST PASSED
++++ TEST PASSED
 
 
 NETCDF POSTFILE:  CAPPED.NC 
@@ -27,7 +27,7 @@ PLOT POSTFILES:   CAPPED_STACK1C0_01H.rdata, CAPPED_STACK1C_01H.rdata, CAPPED_ST
 Error Statistics:
       max.error    rms.error
 1: 4.999943e-06 2.819809e-06
-TEST PASSED
++++ TEST PASSED
 
 
 NETCDF POSTFILE:  FLATELEV.NC 
@@ -35,7 +35,7 @@ PLOT POSTFILES:   FLATELEV_ELEV_STK_01H.rdata, FLATELEV_FLAT_STK_01H.rdata, LVT2
 Error Statistics:
       max.error    rms.error
 1: 4.999947e-06 2.819335e-06
-TEST PASSED
++++ TEST PASSED
 
 
 NETCDF POSTFILE:  HRDOW.NC 
@@ -43,7 +43,7 @@ PLOT POSTFILES:   HRDOW_STACK1_01H.rdata, HRDOW_STACK2_01H.rdata, HRDOW_STACK3_0
 Error Statistics:
       max.error    rms.error
 1: 0.0004997347 1.665698e-05
-TEST PASSED
++++ TEST PASSED
 
 
 NETCDF POSTFILE:  LOVETT.NC 
@@ -51,12 +51,15 @@ PLOT POSTFILES:   LOVETT_01H.rdata, LOVETT_24H.rdata
 Error Statistics:
       max.error    rms.error
 1: 4.999992e-06 2.651361e-06
-TEST PASSED
++++ TEST PASSED
 
 
 NETCDF POSTFILE:  MCR.NC 
 PLOT POSTFILES:   MCR_01H.rdata, MCR_03H.rdata, MCR_24H.rdata 
-TEST FAILED:  Record count mismatch.
+Error Statistics:
+      max.error    rms.error
+1: 4.999948e-06 2.859176e-06
++++ TEST PASSED
 
 
 NETCDF POSTFILE:  MULTURB.NC 
@@ -64,7 +67,7 @@ PLOT POSTFILES:   MULTURB_STACK1_01H.rdata, MULTURB_STACK2_01H.rdata, MULTURB_ST
 Error Statistics:
      max.error    rms.error
 1: 4.99982e-06 2.865084e-06
-TEST PASSED
++++ TEST PASSED
 
 
 NETCDF POSTFILE:  OLMGRP.NC 
@@ -72,7 +75,7 @@ PLOT POSTFILES:   OLMGRP_01H.rdata
 Error Statistics:
       max.error    rms.error
 1: 4.999973e-06 2.246225e-06
-TEST PASSED
++++ TEST PASSED
 
 
 NETCDF POSTFILE:  OLM.NC 
@@ -80,7 +83,7 @@ PLOT POSTFILES:   OLM_01H.rdata
 Error Statistics:
       max.error   rms.error
 1: 4.999946e-06 2.23755e-06
-TEST PASSED
++++ TEST PASSED
 
 
 NETCDF POSTFILE:  OPENPITS.NC 
@@ -88,7 +91,7 @@ PLOT POSTFILES:   OPENPITS_PITGAS_01H.rdata, OPENPITS_PITPRT1_01H.rdata, OPENPIT
 Error Statistics:
      max.error    rms.error
 1: 4.99298e-06 1.772331e-06
-TEST PASSED
++++ TEST PASSED
 
 
 NETCDF POSTFILE:  PSDCRED_01H.NC 
@@ -96,12 +99,15 @@ PLOT POSTFILES:   PSDCRED_NAAQS_01H.rdata, PSDCRED_PSDINC_01H.rdata
 Error Statistics:
       max.error   rms.error
 1: 4.999975e-06 1.91145e-06
-TEST PASSED
++++ TEST PASSED
 
 
 NETCDF POSTFILE:  SURFCOAL.NC 
 PLOT POSTFILES:   PSET2PA.rdata, SURFCOAL_01H.rdata, SURFCOAL_ACTVTY_01H.rdata, SURFCOAL_NPIT_01H.rdata, SURFCOAL_OTHERS_01H.rdata, SURFCOAL_ROADS_01H.rdata, SURFCOAL_SPIT_01H.rdata 
-TEST FAILED:  Records lost in merge.
+Error Statistics:
+      max.error    rms.error
+1: 4.999582e-06 2.135299e-06
++++ TEST PASSED
 
 
 NETCDF POSTFILE:  PVMRM.NC 
@@ -109,7 +115,7 @@ PLOT POSTFILES:   PVMRM_01H.rdata
 Error Statistics:
       max.error   rms.error
 1: 4.999923e-06 2.10217e-06
-TEST PASSED
++++ TEST PASSED
 
 
 NETCDF POSTFILE:  TESTGAS2.NC 
@@ -117,7 +123,7 @@ PLOT POSTFILES:   TESTGAS2_01H.rdata
 Error Statistics:
       max.error    rms.error
 1: 4.999994e-06 2.373587e-06
-TEST PASSED
++++ TEST PASSED
 
 
 NETCDF POSTFILE:  TESTGAS.NC 
@@ -125,7 +131,7 @@ PLOT POSTFILES:   TESTGAS_01H.rdata
 Error Statistics:
       max.error   rms.error
 1: 4.986258e-06 2.98917e-06
-TEST PASSED
++++ TEST PASSED
 
 
 NETCDF POSTFILE:  TESTPART.NC 
@@ -133,20 +139,20 @@ PLOT POSTFILES:   TESTPART_01H.rdata
 Error Statistics:
       max.error    rms.error
 1: 4.988924e-06 2.993521e-06
-TEST PASSED
++++ TEST PASSED
 
 
 NETCDF POSTFILE:  TESTPM10.NC 
 PLOT POSTFILES:   TESTPM10_01H.rdata 
-TEST FAILED:  Records lost in merge.
+Error Statistics:
+    max.error    rms.error
+1: 0.01026955 2.261126e-05
+--- TEST FAILED:  Error exceeds threshold (0.001).
 
 
 NETCDF POSTFILE:  TESTPM10_MULTYR.NC 
 PLOT POSTFILES:   TESTPM10_MULTYR_01H.rdata 
-Error Statistics:
-   max.error rms.error
-1:   122.151  7.385472
-TEST FAILED:  Error exceeds threshold (0.001).
+--- TEST FAILED:  Records lost in merge.
 
 
 NETCDF POSTFILE:  TESTPRT2.NC 
@@ -154,4 +160,4 @@ PLOT POSTFILES:   TESTPRT2_01H.rdata, TESTPRT2_MON.rdata
 Error Statistics:
       max.error    rms.error
 1: 0.0004999581 2.586974e-05
-TEST PASSED
++++ TEST PASSED
