@@ -2,6 +2,9 @@ library(ncdf4)
 library(data.table)
 library(anytime)
 
+# Error threshold.
+epsilon <- 0.0005
+
 # Utility function to return case_postdata object from .RData file.
 load_case_postdata <- function(f) {
   env <- new.env()
@@ -121,8 +124,9 @@ for(ncf in ncfiles)
   cat("Error Statistics:\n")
   print(summary)
   
-  if (summary[,max.error] > 0.001) {
-    cat("--- TEST FAILED:  Error exceeds threshold (0.001).\n", file=stderr())
+  if (summary[,max.error] > epsilon) {
+    cat(paste0("--- TEST FAILED:  Error exceeds threshold (", epsilon, ").\n"),
+        file=stderr())
     next
   }
   

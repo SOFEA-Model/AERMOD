@@ -3,8 +3,8 @@
 
 setlocal
 
-set COMPILE_FLAGS=/O2 /DENABLE_IPC /DENABLE_NETCDF /check:format /Qprec-div- /QaxSSE2 /trace /Qdiag-disable:8291 /I"D:\Lib\netcdf-fortran-4.4.4-x32\include"
-set LINK_FLAGS=/O2 /Qipo- /check:format /Qprec-div- /QaxSSE2
+set COMPILE_FLAGS=/O2 /DENABLE_IPC /DENABLE_NETCDF /Qipo /check:format /Qprec-div- /QaxSSE2 /trace /Qdiag-disable:8291 /I"D:\Lib\netcdf-fortran-4.4.4-x32\include"
+set LINK_FLAGS=/O2 /Qipo /check:format /Qprec-div- /QaxSSE2
 set LINKER_FLAGS=^
  /LIBPATH:"D:\Lib\hdf5-1.8.21-vc141-mt-x32\lib"^
  /LIBPATH:"D:\Lib\zlib-1.2.11-vc141-mt-x32\lib"^
