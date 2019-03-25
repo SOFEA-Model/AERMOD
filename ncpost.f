@@ -10,7 +10,7 @@ C --- User Specified Parameters
 
 C**   DEFLATE_LEVEL = Compression level for conc/depo array, 1-9.
 C**   SYNC_ON_WRITE = Call NF90_SYNC on every call to NCWRITE.
-      
+
 C --- netCDF Dimension IDs (NGRP,NAVE)
       integer, allocatable :: rec_dimid(:,:)
       integer, allocatable :: arc_dimid(:,:)
@@ -43,7 +43,7 @@ C --- Variables for Time Calculation
       logical :: l_timeinit = .false.
       character(len=31) :: time_units_att
       integer :: prev_time_value = -1
-      integer :: init_jday, init_iyr
+      integer :: init_jday, init_iyr, init_ihour
 
 C --- Public Procedures
       public :: ncalloc
@@ -135,6 +135,7 @@ C***********************************************************************
 
 #ifdef ENABLE_NETCDF
       integer :: i, j
+      integer :: time_units_len
       character(len=5) :: data_label
       integer(kind=1), dimension(2), parameter :: clmsg_flags = (/1,2/)
       integer, parameter :: title_len = ilen_fld * 2 + 1
@@ -157,7 +158,7 @@ C        Get dimension IDs.
      &                               net_dimid(indgrp,indave)))
          call nccheck(nf90_inq_dimid(ipsunt(indgrp,indave), "grp",
      &                               grp_dimid(indgrp,indave)))
-         call nccheck(nf90_inq_dimid(ipsunt(indgrp,indave), "ave", 
+         call nccheck(nf90_inq_dimid(ipsunt(indgrp,indave), "ave",
      &                               ave_dimid(indgrp,indave)))
          call nccheck(nf90_inq_dimid(ipsunt(indgrp,indave), "time",
      &                               time_dimid(indgrp,indave)))
@@ -167,9 +168,9 @@ C        Get variable IDs.
      &                               x_varid(indgrp,indave)))
          call nccheck(nf90_inq_varid(ipsunt(indgrp,indave), "y",
      &                               y_varid(indgrp,indave)))
-         call nccheck(nf90_inq_varid(ipsunt(indgrp,indave), "zelev", 
+         call nccheck(nf90_inq_varid(ipsunt(indgrp,indave), "zelev",
      &                               zelev_varid(indgrp,indave)))
-         call nccheck(nf90_inq_varid(ipsunt(indgrp,indave), "zhill", 
+         call nccheck(nf90_inq_varid(ipsunt(indgrp,indave), "zhill",
      &                               zhill_varid(indgrp,indave)))
          call nccheck(nf90_inq_varid(ipsunt(indgrp,indave), "zflag",
      &                               zflag_varid(indgrp,indave)))
@@ -187,9 +188,9 @@ C        Get variable IDs.
      &                               grp_varid(indgrp,indave)))
          call nccheck(nf90_inq_varid(ipsunt(indgrp,indave), "ave",
      &                               ave_varid(indgrp,indave)))
-         call nccheck(nf90_inq_varid(ipsunt(indgrp,indave), "time", 
+         call nccheck(nf90_inq_varid(ipsunt(indgrp,indave), "time",
      &                               time_varid(indgrp,indave)))
-         call nccheck(nf90_inq_varid(ipsunt(indgrp,indave), "clmsg", 
+         call nccheck(nf90_inq_varid(ipsunt(indgrp,indave), "clmsg",
      &                               clmsg_varid(indgrp,indave)))
          do i = 1, numtyp
             if (outtyp(i) .eq. 'CONC') then
@@ -206,6 +207,14 @@ C        Get variable IDs.
      &            "wdep", data_varid(indgrp,indave,i)))
             end if
          end do
+
+C        Get time units attribute.
+         call nccheck(nf90_inquire_attribute(ipsunt(indgrp,indave),
+     &      time_varid(indgrp,indave), "units", len=time_units_len))
+         if (time_units_len .le. len(time_units_att)) then
+            call nccheck(nf90_get_att(ipsunt(indgrp,indave),
+     &         time_varid(indgrp,indave), "units", time_units_att))
+         end if
       else
 C        This is not a restarted run; create new file.
          call nccheck(nf90_create(pstfil(indgrp,indave),
@@ -213,69 +222,69 @@ C        This is not a restarted run; create new file.
      &                            ipsunt(indgrp,indave)))
 
 C        Define dimensions.
-         call nccheck(nf90_def_dim(ipsunt(indgrp,indave), "rec", 
+         call nccheck(nf90_def_dim(ipsunt(indgrp,indave), "rec",
      &      numrec, rec_dimid(indgrp,indave)))
-         call nccheck(nf90_def_dim(ipsunt(indgrp,indave), "arc", 
+         call nccheck(nf90_def_dim(ipsunt(indgrp,indave), "arc",
      &      numarc, arc_dimid(indgrp,indave)))
-         call nccheck(nf90_def_dim(ipsunt(indgrp,indave), "net", 
+         call nccheck(nf90_def_dim(ipsunt(indgrp,indave), "net",
      &      innet, net_dimid(indgrp,indave)))
-         call nccheck(nf90_def_dim(ipsunt(indgrp,indave), "grp", 
+         call nccheck(nf90_def_dim(ipsunt(indgrp,indave), "grp",
      &      numgrp, grp_dimid(indgrp,indave)))
-         call nccheck(nf90_def_dim(ipsunt(indgrp,indave), "ave", 
+         call nccheck(nf90_def_dim(ipsunt(indgrp,indave), "ave",
      &      numave, ave_dimid(indgrp,indave)))
-         call nccheck(nf90_def_dim(ipsunt(indgrp,indave), "time", 
+         call nccheck(nf90_def_dim(ipsunt(indgrp,indave), "time",
      &      nf90_unlimited, time_dimid(indgrp,indave)))
          call nccheck(nf90_def_dim(ipsunt(indgrp,indave), "strlen",
      &      8, strlen_dimid(indgrp,indave)))
 
 C        Define variables.
-         call nccheck(nf90_def_var(ipsunt(indgrp,indave), "x", 
+         call nccheck(nf90_def_var(ipsunt(indgrp,indave), "x",
      &      nf90_double, rec_dimid(indgrp,indave),
      &      x_varid(indgrp,indave)))
-         call nccheck(nf90_def_var(ipsunt(indgrp,indave), "y", 
+         call nccheck(nf90_def_var(ipsunt(indgrp,indave), "y",
      &      nf90_double, rec_dimid(indgrp,indave),
      &      y_varid(indgrp,indave)))
-         call nccheck(nf90_def_var(ipsunt(indgrp,indave), "zelev", 
+         call nccheck(nf90_def_var(ipsunt(indgrp,indave), "zelev",
      &      nf90_double, rec_dimid(indgrp,indave),
      &      zelev_varid(indgrp,indave)))
-         call nccheck(nf90_def_var(ipsunt(indgrp,indave), "zhill", 
+         call nccheck(nf90_def_var(ipsunt(indgrp,indave), "zhill",
      &      nf90_double, rec_dimid(indgrp,indave),
      &      zhill_varid(indgrp,indave)))
-         call nccheck(nf90_def_var(ipsunt(indgrp,indave), "zflag", 
+         call nccheck(nf90_def_var(ipsunt(indgrp,indave), "zflag",
      &      nf90_double, rec_dimid(indgrp,indave),
      &      zflag_varid(indgrp,indave)))
-         call nccheck(nf90_def_var(ipsunt(indgrp,indave), "rec", 
+         call nccheck(nf90_def_var(ipsunt(indgrp,indave), "rec",
      &      nf90_int, rec_dimid(indgrp,indave),
      &      rec_varid(indgrp,indave)))
-         call nccheck(nf90_def_var(ipsunt(indgrp,indave), "arc", 
+         call nccheck(nf90_def_var(ipsunt(indgrp,indave), "arc",
      &      nf90_int, rec_dimid(indgrp,indave),
      &      arc_varid(indgrp,indave)))
-         call nccheck(nf90_def_var(ipsunt(indgrp,indave), "arcid", 
+         call nccheck(nf90_def_var(ipsunt(indgrp,indave), "arcid",
      &      nf90_char,
      &      (/ strlen_dimid(indgrp,indave), arc_dimid(indgrp,indave) /),
      &      arcid_varid(indgrp,indave)))
-         call nccheck(nf90_def_var(ipsunt(indgrp,indave), "net", 
+         call nccheck(nf90_def_var(ipsunt(indgrp,indave), "net",
      &      nf90_int, rec_dimid(indgrp,indave),
      &      net_varid(indgrp,indave)))
-         call nccheck(nf90_def_var(ipsunt(indgrp,indave), "netid", 
+         call nccheck(nf90_def_var(ipsunt(indgrp,indave), "netid",
      &      nf90_char,
      &      (/ strlen_dimid(indgrp,indave), net_dimid(indgrp,indave) /),
      &      netid_varid(indgrp,indave)))
-         call nccheck(nf90_def_var(ipsunt(indgrp,indave), "grp", 
+         call nccheck(nf90_def_var(ipsunt(indgrp,indave), "grp",
      &      nf90_char,
      &      (/ strlen_dimid(indgrp,indave), grp_dimid(indgrp,indave) /),
-     &      grp_varid(indgrp,indave)))    
+     &      grp_varid(indgrp,indave)))
 
-         call nccheck(nf90_def_var(ipsunt(indgrp,indave), "ave", 
+         call nccheck(nf90_def_var(ipsunt(indgrp,indave), "ave",
      &      nf90_int, ave_dimid(indgrp,indave),
      &      ave_varid(indgrp,indave)))
-         call nccheck(nf90_def_var(ipsunt(indgrp,indave), "time", 
+         call nccheck(nf90_def_var(ipsunt(indgrp,indave), "time",
      &      nf90_int, time_dimid(indgrp,indave),
      &      time_varid(indgrp,indave)))
-         call nccheck(nf90_def_var(ipsunt(indgrp,indave), "clmsg", 
+         call nccheck(nf90_def_var(ipsunt(indgrp,indave), "clmsg",
      &      nf90_byte, time_dimid(indgrp,indave),
      &      clmsg_varid(indgrp,indave)))
-     
+
          do i = 1, numtyp
             if (outtyp(i) .eq. 'CONC') then
                data_label = 'conc'
@@ -288,10 +297,10 @@ C        Define variables.
             else
                cycle
             end if
-            
+
 C           The data array is structured so the first dimension varies
 C           fastest. Though this differs from the in-memory structure of
-C           AVEVAL, it allows for efficient hyperslab access when 
+C           AVEVAL, it allows for efficient hyperslab access when
 C           reading. Compression is also applied to these variables.
 
             call nccheck(nf90_def_var(ipsunt(indgrp,indave),
@@ -325,7 +334,7 @@ C        Receptor Y coordinate.
      &      y_varid(indgrp,indave), "units", "m"))
          call nccheck(nf90_put_att(ipsunt(indgrp,indave),
      &      y_varid(indgrp,indave), "axis", "Y"))
-     
+
 C        Receptor terrain elevation.
          call nccheck(nf90_put_att(ipsunt(indgrp,indave),
      &      zelev_varid(indgrp,indave), "standard_name",
@@ -354,14 +363,14 @@ C        Receptor hill height scale.
             call nccheck(nf90_put_att(ipsunt(indgrp,indave),
      &         zhill_varid(indgrp,indave), "units", "ft"))
          end if
-         
+
 C        Receptor height above ground.
          call nccheck(nf90_put_att(ipsunt(indgrp,indave),
      &      zflag_varid(indgrp,indave), "standard_name",
      &      "height"))
          call nccheck(nf90_put_att(ipsunt(indgrp,indave),
      &      zflag_varid(indgrp,indave), "units", "m"))
-         
+
 C        Time.
          call nccheck(nf90_put_att(ipsunt(indgrp,indave),
      &      time_varid(indgrp,indave), "long_name",
@@ -376,14 +385,14 @@ C        Time.
          call nccheck(nf90_put_att(ipsunt(indgrp,indave),
      &      time_varid(indgrp,indave), "ancillary_variables",
      &      "clmsg"))
-         
-C        Receptor index.       
+
+C        Receptor index.
          call nccheck(nf90_put_att(ipsunt(indgrp,indave),
      &      rec_varid(indgrp,indave), "long_name",
      &      "receptor"))
          call nccheck(nf90_put_att(ipsunt(indgrp,indave),
      &      rec_varid(indgrp,indave), "cf_role", "timeseries_id"))
-     
+
 C        Receptor arc index.
          call nccheck(nf90_put_att(ipsunt(indgrp,indave),
      &      arc_varid(indgrp,indave), "long_name",
@@ -395,12 +404,12 @@ C        Indicate that this is an index variable for the arc dimension.
 C        Set _FillValue attribute to zero.
          call nccheck(nf90_def_var_fill(ipsunt(indgrp,indave),
      &      arc_varid(indgrp,indave), 0, 0))
-     
+
 C        Arc ID.
          call nccheck(nf90_put_att(ipsunt(indgrp,indave),
      &      arcid_varid(indgrp,indave), "long_name",
      &      "receptor_arc"))
-     
+
 C        Receptor network index.
          call nccheck(nf90_put_att(ipsunt(indgrp,indave),
      &      net_varid(indgrp,indave), "long_name",
@@ -412,24 +421,24 @@ C        Indicate that this is an index variable for the net dimension.
 C        Set _FillValue attribute to zero.
          call nccheck(nf90_def_var_fill(ipsunt(indgrp,indave),
      &      net_varid(indgrp,indave), 0, 0))
-     
+
 C        Network ID.
          call nccheck(nf90_put_att(ipsunt(indgrp,indave),
      &      netid_varid(indgrp,indave), "long_name",
      &      "receptor_network"))
-     
+
 C        Source group ID.
          call nccheck(nf90_put_att(ipsunt(indgrp,indave),
      &      grp_varid(indgrp,indave), "long_name",
      &      "source_group"))
-     
+
 C        Averaging period.
          call nccheck(nf90_put_att(ipsunt(indgrp,indave),
      &      ave_varid(indgrp,indave), "long_name",
      &      "averaging_period"))
          call nccheck(nf90_put_att(ipsunt(indgrp,indave),
      &      ave_varid(indgrp,indave), "units", "hr"))
-     
+
 C        Calm or missing hour flags.
          call nccheck(nf90_put_att(ipsunt(indgrp,indave),
      &      clmsg_varid(indgrp,indave), "long_name",
@@ -446,7 +455,7 @@ C        Calm or missing hour flags.
          call nccheck(nf90_put_att(ipsunt(indgrp,indave),
      &      clmsg_varid(indgrp,indave), "cell_methods",
      &      "time: point"))
-     
+
 C        Concentration and deposition.
          do i = 1, numtyp
             if (outtyp(i) .eq. 'CONC') then
@@ -498,7 +507,7 @@ C        Define global attributes.
 
 C        End definition mode.
          call nccheck(nf90_enddef(ipsunt(indgrp,indave)))
-     
+
 C        Write receptor arrays.
          call nccheck(nf90_put_var(ipsunt(indgrp,indave),
      &      rec_varid(indgrp,indave), (/ (irec, irec=1,numrec) /)))
@@ -512,12 +521,12 @@ C        Write receptor arrays.
      &      zhill_varid(indgrp,indave), azhill))
          call nccheck(nf90_put_var(ipsunt(indgrp,indave),
      &      zflag_varid(indgrp,indave), azflag))
-     
+
 C        Write arc index by receptor. NDXARC is zero (missing)
 C        for non-EVALCART receptors.
          call nccheck(nf90_put_var(ipsunt(indgrp,indave),
      &      arc_varid(indgrp,indave), ndxarc(1:numrec)))
-     
+
 C        Write arcid array.
          call nccheck(nf90_put_var(ipsunt(indgrp,indave),
      &      arcid_varid(indgrp,indave), arcid(1:numarc)))
@@ -532,16 +541,16 @@ C        Write network index by receptor.
                end if
             end do
          end do
-         
+
          call nccheck(nf90_put_var(ipsunt(indgrp,indave),
      &      net_varid(indgrp,indave), ndxnet(1:numrec)))
-         
+
 C        Write netid array.
          call nccheck(nf90_put_var(ipsunt(indgrp,indave),
      &      netid_varid(indgrp,indave), ntid(1:innet)))
-     
+
 C        Write source groups and averaging periods. The grp and ave
-C        variables will contain all source groups and averaging 
+C        variables will contain all source groups and averaging
 C        periods specified in SO SRCGROUP and CO AVERTIME, regardless
 C        of postfile selection by indgrp/indave.
 C
@@ -551,7 +560,7 @@ C        averaging periods not selected for output.
 
          call nccheck(nf90_put_var(ipsunt(indgrp,indave),
      &      grp_varid(indgrp,indave), grpid(1:numgrp)))
-     
+
          call nccheck(nf90_put_var(ipsunt(indgrp,indave),
      &      ave_varid(indgrp,indave), kave(1:numave)))
       end if
@@ -654,37 +663,48 @@ C***********************************************************************
       use netcdf
       implicit none
 
+      integer ncyr, ncmonth, ncday, nchour
       integer :: time_index, time_value, i, istep
       integer, dimension(4) :: aveval_start, aveval_count
 
-C     Set time units attribute on first call to this subroutine, after
-C     the date variables have been initialized.
+C     Set time units attribute and store initial times on the first call
+C     to this subroutine, after at least one hour of meteorological data
+C     is read and the date variables for the first hour have been set.
 
-      if (l_timeinit .eq. .false.) THEN
-C        Ensure that we are in definition mode.
-         call nccheck(nf90_redef(ipsunt(igrp,iave)))
+      if (.not. l_timeinit) then
+         if (.not. rstinp) then
+C           Write time units using UDUNITS convention. This is required
+C           for compliance with CF metadata conventions (section 4.4).
+            call nccheck(nf90_redef(ipsunt(igrp,iave)))
+            write(time_units_att,
+     &            '(a12,i4.4,"-",i2.2,"-",i2.2,x,i2.2,a6)')
+     &            'hours since ', iyr, imonth, iday, ihour-1, ':00:00'
+            call nccheck(nf90_put_att(ipsunt(igrp,iave),
+     &         time_varid(igrp,iave), "units", time_units_att))
+            call nccheck(nf90_enddef(ipsunt(igrp,iave)))
 
-C        Write time units using UDUNITS convention. This is required for
-C        compliance with CF metadata conventions (see section 4.4).
-         write(time_units_att,
-     &         '(a12,i4.4,"-",i2.2,"-",i2.2,x,i2.2,a6)')
-     &         'hours since ', iyr, imonth, iday, ihour-1, ':00:00'
-         call nccheck(nf90_put_att(ipsunt(igrp,iave),
-     &      time_varid(igrp,iave), "units", time_units_att))
+C           Store initial time for offset calculations.
+            init_jday = jday
+            init_iyr = iyr
+            init_ihour = ihour
+         else
+C           This is a restarted run. Parse the time units attribute to
+C           determine the actual start time.
+            read(time_units_att, '(12x,i4.4,x,i2.2,x,i2.2,x,i2.2,6x)')
+     &         ncyr, ncmonth, ncday, nchour
 
-C        End definition mode.
-         call nccheck(nf90_enddef(ipsunt(igrp,iave)))
-
-C        Store initial time for offset calculations.
-         init_jday = jday
-         init_iyr = iyr
+C           Store initial time for offset calculations.
+            call julian(ncyr, ncmonth, ncday, init_jday)
+            init_iyr = ncyr
+            init_ihour = nchour+1
+         end if
          l_timeinit = .true.
       end if
 
 C     Calculate current time value as offset from initial time. Leap
-C     years are determined according to the Proleptic Gregorian 
+C     years are determined according to the Proleptic Gregorian
 C     calendar, as in SUBROUTINE SET_DATES (metext.f).
-      time_value = 24*(jday-init_jday) + ihour-1
+      time_value = 24*(jday-init_jday) + (ihour-init_ihour)
       if (iyr .ne. init_iyr) then
 C        Allow for a negative offset in the case of non-sequential
 C        meteorological data files (NOCHKD, WARNCHKD).
@@ -707,7 +727,7 @@ C     dimension will correspond to the shortest averaging period
 C     selected for output.
       call nccheck(nf90_inquire_dimension(ipsunt(igrp,iave),
      &   time_dimid(igrp,iave), len=time_index))
-     
+
 C     If current time value changed, update the time variable.
       if (time_value .gt. prev_time_value) then
          time_index = time_index + 1
@@ -752,14 +772,14 @@ C     tradeoff is slightly reduced I/O performance.
       if (SYNC_ON_WRITE) then
          call nccheck(nf90_sync(ipsunt(igrp,iave)))
       end if
-      
+
 C     Update previous time value for the next iteration.
       prev_time_value = time_value
 #endif
 
       end subroutine ncwrite
 
-      
+
       subroutine ncclose
 C***********************************************************************
 C                 NCCLOSE
@@ -770,7 +790,7 @@ C        PROGRAMMER: John Buonagurio, Exponent
 C
 C        DATE:    September 30, 2018
 C
-C        INPUTS:  
+C        INPUTS:
 C
 C        OUTPUTS:
 C
@@ -786,7 +806,7 @@ C***********************************************************************
 
       min_ncid = minval(ipsunt, ipsfrm .eq. 2)
       max_ncid = maxval(ipsunt, ipsfrm .eq. 2)
-      
+
       if (max_ncid .gt. 0) then
          do i = min_ncid, max_ncid
             call nccheck(nf90_close(i))
@@ -796,7 +816,7 @@ C***********************************************************************
 
       end subroutine ncclose
 
-      
+
       subroutine nccheck(rc)
 C***********************************************************************
 C                 NCCHECK Module
@@ -820,18 +840,18 @@ C***********************************************************************
 
       integer, intent(in) :: rc
       character(len=3) :: inercd = '999'
-      
-C     For use with the ERRHDL subroutine, INERCD is 800 plus the 
-C     absolute value of the netCDF error code. Shorter versions of 
-C     the messages produced by NF90_STRERROR are included in the 
+
+C     For use with the ERRHDL subroutine, INERCD is 800 plus the
+C     absolute value of the netCDF error code. Shorter versions of
+C     the messages produced by NF90_STRERROR are included in the
 C     ERRMSG array.
-      
+
       if(rc .ne. NF90_NOERR) then
          if (rc .le. -33 .and. rc .ge. -135) then
 C           Error code is in the valid range.
             write (inercd, '(i3)') abs(rc) + 800
          end if
-         
+
          call errhdl(path,'NCPOST','E',inercd,'POSTFILE')
       end if
 #endif
