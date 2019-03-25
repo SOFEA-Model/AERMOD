@@ -145,17 +145,17 @@ Error Statistics:
 NETCDF POSTFILE:  TESTPM10.NC 
 PLOT POSTFILES:   TESTPM10_01H.rdata 
 Error Statistics:
-    max.error    rms.error
-1: 0.01026955 2.261126e-05
---- TEST FAILED:  Error exceeds threshold (0.001).
+      max.error    rms.error
+1: 4.999987e-06 2.069843e-06
++++ TEST PASSED
 
 
 NETCDF POSTFILE:  TESTPM10_MULTYR.NC 
 PLOT POSTFILES:   TESTPM10_MULTYR_01H.rdata 
 Error Statistics:
-    max.error    rms.error
-1: 0.01026955 2.261126e-05
---- TEST FAILED:  Error exceeds threshold (0.001).
+      max.error    rms.error
+1: 4.999987e-06 2.069843e-06
++++ TEST PASSED
 
 
 NETCDF POSTFILE:  TESTPRT2.NC 
