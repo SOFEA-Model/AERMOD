@@ -42,7 +42,6 @@ C --- netCDF Data Variable IDs (NGRP,NAVE,NTYP)
 C --- Variables for Time Calculation
       logical :: l_timeinit = .false.
       character(len=31) :: time_units_att
-      integer :: time_value = 0
       integer :: prev_time_value = -1
       integer :: init_jday, init_iyr
 
@@ -655,7 +654,7 @@ C***********************************************************************
       use netcdf
       implicit none
 
-      integer :: time_index, i
+      integer :: time_index, time_value, i, istep
       integer, dimension(4) :: aveval_start, aveval_count
 
 C     Set time units attribute on first call to this subroutine, after
@@ -682,22 +681,24 @@ C        Store initial time for offset calculations.
          l_timeinit = .true.
       end if
 
-C     Calculate current hour index as offset from initial time. Leap
-C     years are determined according to the Proleptic Gregorian
+C     Calculate current time value as offset from initial time. Leap
+C     years are determined according to the Proleptic Gregorian 
 C     calendar, as in SUBROUTINE SET_DATES (metext.f).
-
       time_value = 24*(jday-init_jday) + ihour-1
       if (iyr .ne. init_iyr) then
-         do i = init_iyr, iyr
+C        Allow for a negative offset in the case of non-sequential
+C        meteorological data files (NOCHKD, WARNCHKD).
+         istep = merge(-1, 1, iyr < init_iyr)
+         i = init_iyr
+         do while (i .ne. iyr)
             if ((mod(i,4) .ne. 0) .or.
      &          (mod(i,100) .eq. 0 .and.
      &           mod(i,400) .ne. 0)) then
-C              Standard year
-               time_value = time_value + 24*365*(i-init_iyr)
+               time_value = time_value + 24*365*istep
             else
-C              Leap year
-               time_value = time_value + 24*366*(i-init_iyr)
+               time_value = time_value + 24*366*istep
             end if
+            i = i + istep
          end do
       end if
 
@@ -706,8 +707,8 @@ C     dimension will correspond to the shortest averaging period
 C     selected for output.
       call nccheck(nf90_inquire_dimension(ipsunt(igrp,iave),
      &   time_dimid(igrp,iave), len=time_index))
-
-C     If time changed, increment index and write current hour.
+     
+C     If current time value changed, update the time variable.
       if (time_value .gt. prev_time_value) then
          time_index = time_index + 1
          call nccheck(nf90_put_var(ipsunt(igrp,iave),
@@ -745,14 +746,14 @@ C     Write calm and missing flags.
 C     Flush in-memory buffers to disk. While this is automatically done
 C     when the dataset is closed, calling NF90_SYNC here prevents data
 C     loss in the case of abnormal program termination, and makes the
-C     data immediately available for reading by other processes.
-C     The tradeoff is slightly reduced I/O performance.
+C     data immediately available for reading by other processes. The
+C     tradeoff is slightly reduced I/O performance.
 
       if (SYNC_ON_WRITE) then
          call nccheck(nf90_sync(ipsunt(igrp,iave)))
       end if
       
-C     Set previous time index to current.
+C     Update previous time value for the next iteration.
       prev_time_value = time_value
 #endif
 
