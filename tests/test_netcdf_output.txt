@@ -152,7 +152,10 @@ Error Statistics:
 
 NETCDF POSTFILE:  TESTPM10_MULTYR.NC 
 PLOT POSTFILES:   TESTPM10_MULTYR_01H.rdata 
---- TEST FAILED:  Records lost in merge.
+Error Statistics:
+    max.error    rms.error
+1: 0.01026955 2.261126e-05
+--- TEST FAILED:  Error exceeds threshold (0.001).
 
 
 NETCDF POSTFILE:  TESTPRT2.NC 
