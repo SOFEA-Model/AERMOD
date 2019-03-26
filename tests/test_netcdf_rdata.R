@@ -13,7 +13,7 @@ load_case_postdata <- function(f) {
 }
 
 # Read map between .RData (aermet_def_18081_aermod_18081) and netCDF files.
-map <- fread("rdata_netcdf_map.csv")
+map <- fread("test_netcdf_rdata.csv")
 
 # Get the list of netCDF files to check.
 ncfiles <- unique(map[,netcdf])

@@ -94,7 +94,7 @@ Error Statistics:
 +++ TEST PASSED
 
 
-NETCDF POSTFILE:  PSDCRED_01H.NC 
+NETCDF POSTFILE:  PSDCRED.NC 
 PLOT POSTFILES:   PSDCRED_NAAQS_01H.rdata, PSDCRED_PSDINC_01H.rdata 
 Error Statistics:
       max.error   rms.error
